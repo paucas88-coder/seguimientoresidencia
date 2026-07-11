@@ -98,7 +98,7 @@ textarea{min-height:60px;resize:none}
   <button class="nb act" id="tab-guardias" onclick="setTab('guardias')"><span class="ic">🌙</span>Guardias</button>
   <button class="nb" id="tab-procs" onclick="setTab('procs')"><span class="ic">🏥</span>Procedimientos</button>
   <button class="nb" id="tab-ateneos" onclick="setTab('ateneos')"><span class="ic">📖</span>Ateneos</button>
-  <button class="nb" id="tab-pacientes" onclick="setTab('pacientes')"><span class="ic">👥</span>Pacientes</button>
+  <button class="nb" id="tab-casos" onclick="setTab('casos')"><span class="ic">📋</span>Casos</button>
 </div>
 
 <div class="mo" id="mo"><div class="mc" id="mc"></div></div>
@@ -117,7 +117,7 @@ const fd=d=>{if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}
 
 // ===== ESTADO =====
 let db=null,rid=null,residente=null,tab='guardias';
-let S={guardias:[],procs:[],ateneos:[],pacientes:[]};
+let S={guardias:[],procs:[],ateneos:[],casos:[]};
 let _gcal={y:new Date().getFullYear(),m:new Date().getMonth()};
 let saving=false;
 
@@ -153,7 +153,7 @@ async function loadData(){
     document.getElementById('hdrName').textContent=`${residente.nombre} ${residente.apellido}`;
     document.getElementById('hdrSub').textContent=residente.anio+' · Residencia Neo-Pediátrica';
     document.getElementById('hdrStatus').textContent='';
-    const cols=['guardias','procs','ateneos','pacientes'];
+    const cols=['guardias','procs','ateneos','casos'];
     const docs=await Promise.all(cols.map(k=>db.collection('residentes').doc(k).get()));
     docs.forEach((doc,i)=>{
       const k=cols[i];
@@ -198,7 +198,7 @@ function render(){
   if(tab==='guardias')renderGuardias();
   else if(tab==='procs')renderProcs();
   else if(tab==='ateneos')renderAteneos();
-  else if(tab==='pacientes')renderPacientes();
+  else if(tab==='casos')renderCasos();
 }
 
 // ===== GUARDIAS =====
@@ -341,8 +341,81 @@ function addAteneo(){
   saveCol('ateneos');cm();renderAteneos();
 }
 
-// ===== PACIENTES DEL DÍA =====
-function renderPacientes(){
+// ===== CASOS CLÍNICOS =====
+function renderCasos(){
+  const hoyStr=hoy();
+  const hoyItems=S.casos.filter(c=>c.fecha===hoyStr);
+  const ms=hoyStr.substring(0,7);
+  const mesTot=S.casos.filter(c=>c.fecha.startsWith(ms)).length;
+  const prev=S.casos.filter(c=>c.fecha!==hoyStr).slice().reverse().slice(0,20);
+  const ambLbl={internacion:'🏥 Internación',shockroom:'🚨 Shock room',consultorio:'🏠 Consultorio',neonatal:'👶 Área neonatal'};
+  const cBg={alta:'#fed7d7',media:'#fefcbf',baja:'#c6f6d5'};
+  const cTxt={alta:'#c53030',media:'#744210',baja:'#276749'};
+  document.getElementById('content').innerHTML=`
+  <div class="card">
+    <div class="sr">
+      <div class="sb"><div class="n">${hoyItems.length}</div><div class="l">Hoy</div></div>
+      <div class="sb"><div class="n">${mesTot}</div><div class="l">Este mes</div></div>
+      <div class="sb"><div class="n">${S.casos.length}</div><div class="l">Total</div></div>
+    </div>
+    <button class="btn bp" onclick="openCaso()" style="margin-bottom:14px">＋ Registrar caso clínico</button>
+    ${hoyItems.length?`<div class="hoy-section">
+      <div class="hoy-title">📅 Hoy — ${fd(hoyStr)} · ${hoyItems.length} caso${hoyItems.length!==1?'s':''}</div>
+      ${hoyItems.map(c=>`<div style="padding:8px 0;border-bottom:1px solid rgba(39,103,73,.15);display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:.88rem;font-weight:800">${c.diag||'Sin diagnóstico'}</div>
+          <div style="font-size:.72rem;margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <span style="color:var(--neo)">${ambLbl[c.amb]||c.amb||'—'}</span>
+            ${c.compl?`<span style="background:${cBg[c.compl]};color:${cTxt[c.compl]};padding:1px 7px;border-radius:10px;font-weight:700;font-size:.68rem">${c.compl}</span>`:''}
+            ${c.rot?`<span style="color:var(--muted)">· ${c.rot}</span>`:''}
+          </div>
+          ${c.comp?`<div style="font-size:.74rem;color:var(--muted);margin-top:3px;font-style:italic">${c.comp.substring(0,70)}</div>`:''}
+        </div>
+        <button onclick="removeItem('casos','${c.id}');renderCasos()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.9rem;padding:2px;flex-shrink:0">✕</button>
+      </div>`).join('')}
+    </div>`:''}
+    ${prev.length?`<div style="margin-top:12px">
+      <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Casos anteriores</div>
+      ${prev.map(c=>`<div class="ri">
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:.85rem">${c.diag||'Sin diagnóstico'}</div>
+          <div class="meta">${ambLbl[c.amb]||c.amb||'—'} · ${fd(c.fecha)}${c.rot?` · ${c.rot}`:''}</div>
+        </div>
+        ${c.compl?`<span style="background:${cBg[c.compl]};color:${cTxt[c.compl]};padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700;flex-shrink:0">${c.compl}</span>`:''}
+      </div>`).join('')}
+    </div>`:`<div class="empty-msg" style="margin-top:8px">Registrá tu primer caso del día</div>`}
+  </div>`;
+}
+
+function openCaso(){
+  om('Registrar caso clínico',`
+    <div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div>
+    <div class="fg"><label>Diagnóstico principal</label><input id="fdiag" placeholder="Ej: Bronquiolitis moderada, Sepsis neonatal…"></div>
+    <div class="fr">
+      <div class="fg"><label>Ámbito</label><select id="famb">
+        <option value="internacion">🏥 Internación</option>
+        <option value="shockroom">🚨 Shock room</option>
+        <option value="consultorio">🏠 Consultorio</option>
+        <option value="neonatal">👶 Área neonatal</option>
+      </select></div>
+      <div class="fg"><label>Complejidad</label><select id="fcompl">
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+      </select></div>
+    </div>
+    <div class="fg"><label>Rotación</label><input id="frot" placeholder="Rotación actual"></div>
+    <div class="fg"><label>Competencia trabajada</label><textarea id="fcomp" placeholder="Ej: Diagnóstico diferencial del distrés respiratorio…"></textarea></div>
+    <div class="fg"><label>Reflexión / aprendizaje</label><textarea id="frefl" placeholder="¿Qué aprendiste de este caso?"></textarea></div>`,
+    `<button class="btn bp" onclick="addCaso()">✅ Guardar caso</button>`);
+}
+
+function addCaso(){
+  const d=document.getElementById('fdiag').value.trim();
+  if(!d){alert('Ingresá el diagnóstico.');return;}
+  S.casos.push({id:uid(),rid,fecha:document.getElementById('ff2').value||hoy(),diag:d,amb:document.getElementById('famb').value,compl:document.getElementById('fcompl').value,rot:document.getElementById('frot')?.value||'',comp:document.getElementById('fcomp')?.value||'',refl:document.getElementById('frefl')?.value||''});
+  saveCol('casos');cm();renderCasos();
+}
   const hoyStr=hoy();
   const hoyItems=S.pacientes.filter(p=>p.fecha===hoyStr);
   const hoyTotP=hoyItems.reduce((s,p)=>s+(+p.nPacientes||0),0);
