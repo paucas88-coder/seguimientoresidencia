@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Residencia Neo-Pediátrica · Sanatorio 9 de Julio</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+:root{--pri:#2c5282;--pri-bg:#ebf8ff;--pri-acc:#4299e1;--neo:#276749;--neo-bg:#f0fff4;--neo-acc:#48bb78;--txt:#2d3748;--muted:#718096;--brd:#e2e8f0;--bg:#f7fafc;--wht:#fff;--red:#e53e3e;--r:8px;--sh:0 1px 3px rgba(0,0,0,.1)}
+body{background:var(--bg);color:var(--txt);min-height:100vh}
+.app{max-width:1160px;margin:0 auto;padding:14px}
+.hdr{background:var(--wht);border-radius:var(--r);padding:14px 18px;margin-bottom:12px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hdr h1{font-size:1rem;font-weight:800;flex:1}.hdr small{font-size:.7rem;color:var(--muted);display:block}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.68rem;font-weight:700;letter-spacing:.04em}
+.tabs{display:flex;gap:3px;background:var(--wht);border-radius:var(--r);padding:5px;margin-bottom:12px;box-shadow:var(--sh);overflow-x:auto}
+.tab{padding:7px 13px;border-radius:6px;border:none;background:none;cursor:pointer;font-size:.78rem;font-weight:500;color:var(--muted);white-space:nowrap;transition:all .15s}
+.tab:hover{background:var(--bg)}.tab.act{background:var(--pri-bg);color:var(--pri);font-weight:700}
+.subtabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.stab{padding:5px 11px;border-radius:20px;border:1px solid var(--brd);background:var(--bg);cursor:pointer;font-size:.75rem;font-weight:600;color:var(--muted);transition:all .15s}
+.stab:hover{border-color:var(--pri-acc)}.stab.act{background:var(--pri);color:#fff;border-color:var(--pri)}
+.stab-neo.act{background:var(--neo);border-color:var(--neo)}.stab-otras.act{background:#718096;border-color:#718096}
+.card{background:var(--wht);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.ct{font-size:.92rem;font-weight:700}.cs{font-size:.72rem;color:var(--muted);margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+@media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.stat{background:var(--bg);border-radius:var(--r);padding:13px;text-align:center;border:1px solid var(--brd);border-left:3px solid var(--pri-acc)}
+.stat .n{font-size:1.5rem;font-weight:800;line-height:1;margin-bottom:3px;color:var(--pri)}
+.stat .l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:.78rem;font-weight:600;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+.bp{background:var(--pri);color:#fff}.bn{background:var(--neo);color:#fff}
+.bg2{background:var(--bg);color:var(--txt);border:1px solid var(--brd)}.br{background:var(--red);color:#fff}
+.bsm{padding:4px 9px;font-size:.72rem}
+.fg{margin-bottom:12px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:580px){.fr{grid-template-columns:1fr}}
+label{display:block;font-size:.72rem;font-weight:700;margin-bottom:4px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{width:100%;border:1px solid var(--brd);border-radius:6px;padding:7px 9px;font-size:.82rem;background:var(--wht);transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri-acc);box-shadow:0 0 0 3px rgba(66,153,225,.15)}
+textarea{min-height:68px;resize:vertical}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.79rem}
+th{padding:7px 10px;background:var(--bg);border-bottom:2px solid var(--brd);text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td{padding:8px 10px;border-bottom:1px solid var(--brd);vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}
+.sc{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.sh{background:#c6f6d5;color:#276749}.sm{background:#fefcbf;color:#744210}.sl{background:#fed7d7;color:#c53030}.sbl{background:#bee3f8;color:#2c5282}
+.mo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:14px}
+.mo.open{display:flex}
+.mc{background:var(--wht);border-radius:12px;padding:22px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mt{font-size:.95rem;font-weight:700}
+.mx{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);padding:3px 6px;border-radius:4px}
+.mx:hover{background:var(--bg)}
+.mf{display:flex;gap:7px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--brd)}
+.sd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--brd);padding-bottom:5px;margin:18px 0 12px}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.ei{font-size:2.2rem;margin-bottom:8px}.empty p{font-size:.8rem}
+.pw{background:var(--brd);border-radius:20px;height:8px;overflow:hidden;margin-top:5px}
+.pb{height:100%;border-radius:20px;transition:width .3s}
+.pb-pri{background:var(--pri-acc)}.pb-neo{background:var(--neo-acc)}
+.rh{background:linear-gradient(135deg,#2c5282,#276749);color:#fff;border-radius:var(--r) var(--r) 0 0;padding:22px;margin:-18px -18px 18px}
+.cli{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--brd);font-size:.82rem}
+.cli:last-child{border-bottom:none}
+.clc{width:16px;height:16px;accent-color:var(--pri);flex-shrink:0}
+.cln{margin-left:auto;font-size:.7rem;font-weight:700;background:var(--bg);padding:2px 7px;border-radius:20px;color:var(--muted)}
+.rubric-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--brd);flex-wrap:wrap}
+.rubric-row:last-child{border-bottom:none}
+.rlab{flex:1;font-size:.8rem;min-width:150px}
+.rbts{display:flex;gap:4px}
+.rbt{padding:4px 10px;border-radius:20px;border:1px solid var(--brd);font-size:.72rem;font-weight:600;cursor:pointer;background:var(--bg);transition:all .1s;white-space:nowrap}
+.rbt:hover{border-color:var(--pri-acc)}
+.rbt.sel-1{background:#fed7d7;color:#c53030;border-color:#c53030}
+.rbt.sel-2{background:#fefcbf;color:#744210;border-color:#d69e2e}
+.rbt.sel-3{background:#bee3f8;color:#2c5282;border-color:#4299e1}
+.rbt.sel-4{background:#c6f6d5;color:#276749;border-color:#48bb78}
+.csec{background:var(--bg);border-radius:6px;padding:12px;border:1px solid var(--brd);margin-bottom:10px}
+.csec-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.alert-i{background:var(--pri-bg);border-left:3px solid var(--pri-acc);color:var(--pri);padding:9px 12px;border-radius:6px;font-size:.78rem;margin-bottom:12px}
+#saveStatus{font-size:.72rem;color:var(--muted)}
+.cat-neo{background:#c6f6d5;color:#276749}.cat-ped{background:#bee3f8;color:#2c5282}.cat-otras{background:#e2e8f0;color:#4a5568}
+@media print{.tabs,.subtabs,.hdr button,.btn,.mo{display:none!important}.card{box-shadow:none;border:1px solid var(--brd)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div style="flex:1"><h1>Sistema de Seguimiento · Residencia Neo-Pediátrica</h1><small>Sanatorio 9 de Julio S.A. · San Miguel de Tucumán · Dra. Mortarotti / Dra. Castillo Lucena</small></div>
+    <div id="rsel" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <span id="saveStatus"></span>
+      <button class="btn bg2 bsm" id="gsBtn" onclick="oSettings()">🔥 Firebase</button>
+      <button class="btn bg2 bsm" onclick="exportJSON()">💾 Exportar</button>
+      <button class="btn bg2 bsm" onclick="document.getElementById('importFile').click()">📂 Importar</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+  <div class="tabs" id="tbar">
+    <button class="tab" onclick="setTab('perfil')">👤 Perfil</button>
+    <button class="tab" onclick="setTab('rotaciones')">🔄 Rotaciones</button>
+    <button class="tab" onclick="setTab('evals')">⭐ Evaluaciones</button>
+    <button class="tab" onclick="setTab('procs')">🏥 Procedimientos</button>
+    <button class="tab" onclick="setTab('guardias')">🌙 Guardias</button>
+    <button class="tab" onclick="setTab('portafolio')">📚 Portafolio</button>
+    <button class="tab" onclick="setTab('ateneos')">📖 Ateneos</button>
+    <button class="tab" onclick="setTab('ciencia')">🔬 Producción Científica</button>
+    <button class="tab" onclick="setTab('licencias')">📅 Licencias</button>
+    <button class="tab" onclick="setTab('comunidad')">🌍 Com. Extensión</button>
+    <button class="tab" onclick="setTab('reporte')">📊 Reporte</button>
+  </div>
+  <div id="content"></div>
+</div>
+<div class="mo" id="mo"><div class="mc" id="mc"></div></div>
+<datalist id="dl-neo"><option>Neonatología internación</option><option>UCIN nivel II</option><option>UCIN nivel III</option><option>Recepción / Sala de partos</option><option>Imágenes / Medicina Fetal</option><option>Cirugía neonatal</option><option>Gastroenterología neonatal</option><option>Infectología – H. Niños Jesús</option><option>Genética – H. Niños Jesús</option><option>Hemato-oncología – H. Niños Jesús</option><option>SECRIP – H. Clínicas</option></datalist>
+<datalist id="dl-ped"><option>Pediatría clínica (piso)</option><option>Guardia pediátrica</option><option>UCIP</option><option>Consultorio externo</option><option>Consultorio Alto Riesgo</option><option>Adolescencia</option><option>Infectología – H. Niños Jesús</option><option>Cirugía infantil</option><option>Imágenes</option><option>Gastroenterología infantil</option><option>Hemato-oncología – H. Niños Jesús</option><option>Genética – H. Niños Jesús</option><option>SECRIP – H. Clínicas</option><option>Medicina Fetal</option></datalist>
+
+<script>
+// ===== ESTADO =====
+let S={residents:[],evals:[],procs:[],guardias:[],casos:[],rots:[],stats:[],ciencia:[],licencias:[],comunidad:[],rid:null,tab:'perfil'};
+let rotFilter='all';
+let repMode='semestral',repYear=new Date().getFullYear(),repSem=new Date().getMonth()<6?1:2;
+
+// ===== CONSTANTES =====
+const ANOS=['1° año','2° año','3° año','4° año','5° año'];
+const PNEO=['Intubación endotraqueal','Extubación programada','Catéter venoso umbilical (CUV)','Catéter arterial umbilical (CAU)','Catéter percutáneo (PICC)','Acceso venoso periférico neonatal','Punción lumbar neonatal','Toracocentesis / Drenaje pleural','Paracentesis neonatal','CPAP nasal – inicio y ajuste','VAFO – inicio y ajuste','ARM/VMA neonatal','RCP neonatal avanzada','Exanguinotransfusión','Surfactante exógeno','Fototerapia – indicación y monitoreo','Sondaje orogástrico / nasogástrico','Ecografía transfontanelar básica','Hipotermia terapéutica','Interpretación de gases y laboratorio'];
+const PPED=['Punción lumbar pediátrica','Acceso venoso periférico','Acceso intraóseo (IO)','Catéter venoso central','Intubación secuencia rápida (ISR)','Extubación programada pediátrica','ARM/VMA pediátrica','CPAP / BiPAP pediátrico','RCP pediátrica avanzada','Cardioversión / desfibrilación','Toracocentesis pediátrica','Paracentesis pediátrica','Artrocentesis','Reducción de luxaciones','Sutura de heridas','Cateterismo vesical','Sondaje nasogástrico','Nebulización / aerosolterapia','Monitoreo hemodinámico invasivo','Lectura Rx tórax y abdomen'];
+const MCEX=['Anamnesis y examen físico','Diagnóstico diferencial','Plan de estudio','Plan terapéutico','Comunicación con familia','Humanismo / profesionalismo','Organización y eficiencia'];
+const RCOMP=['Conocimiento teórico','Razonamiento clínico','Habilidades prácticas','Comunicación con familia','Profesionalismo y ética','Trabajo en equipo'];
+const RNIVS=['Insuficiente','En desarrollo','Satisfactorio','Destacado'];
+const TLBL={minicex:'Mini-CEX',trescientos:'360°',simulacion:'Simulación clínica',teorico:'Examen teórico',paseSala:'Pase de sala',auditoria:'Auditoría HC'};
+const TICO={minicex:'🩺',trescientos:'🔁',simulacion:'🎯',teorico:'📝',paseSala:'🏥',auditoria:'📋'};
+const ROT_LBL={'1':'Insuficiente','2':'En desarrollo','3':'Satisfactorio','4':'Destacado'};
+const ROT_CSS={'1':'sl','2':'sm','3':'sbl','4':'sh'};
+const CAT_LBL={neo:'Neonatología',ped:'Pediatría',otras:'Otras'};
+const CAT_CSS={neo:'cat-neo',ped:'cat-ped',otras:'cat-otras'};
+const COLLS=['residents','evals','procs','guardias','casos','rots','stats','ciencia','licencias','comunidad','ateneos','pacientes'];
+
+// ===== UTILIDADES =====
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const hoy=()=>new Date().toISOString().split('T')[0];
+const fd=d=>{if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`};
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const scl=(s,mx=10)=>{const p=s/mx;return p>=.7?'sh':p>=.5?'sm':'sl'};
+const gR=id=>S.residents.find(r=>r.id===id);
+const aR=()=>gR(S.rid);
+
+function fpd(arr,df){
+  if(repMode==='global')return arr;
+  const y=String(repYear);
+  return arr.filter(x=>{
+    if(!x[df])return false;
+    const[ay,am]=String(x[df]).split('-');
+    if(repMode==='anual'){const mo=parseInt(am);return(ay===y&&mo>=6)||(ay===String(parseInt(y)+1)&&mo<=5);}
+    const m=parseInt(am);
+    return ay===y&&(repSem===1?m<=6:m>6);
+  });
+}
+
+// ===== FIREBASE =====
+const IS_AS=typeof google!=='undefined'&&typeof google.script!=='undefined';
+let db=null;
+
+function initFirebase(cfg){
+  try{
+    if(!firebase.apps.length)firebase.initializeApp(cfg);
+    db=firebase.firestore();
+    const b=document.getElementById('gsBtn');
+    if(b){b.textContent='🔥 Firebase ✅';b.style.color='var(--neo)';}
+    return true;
+  }catch(e){console.error('Firebase init:',e);return false;}
+}
+
+function updFbBtn(){
+  const b=document.getElementById('gsBtn');if(!b)return;
+  b.textContent=db?'🔥 Firebase ✅':'🔥 Firebase';
+  b.style.color=db?'var(--neo)':'var(--red)';
+}
+
+// ===== GUARDAR / CARGAR =====
+let _saveTimer=null;
+function save(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async()=>{
+    setSt('saving');
+    if(IS_AS){
+      const data=JSON.stringify(COLLS.reduce((o,k)=>(o[k]=S[k],o),{}));
+      google.script.run.withSuccessHandler(()=>setSt('ok')).withFailureHandler(()=>setSt('error')).saveData(data);
+      return;
+    }
+    if(!db){setSt('error');return;}
+    try{
+      const batch=db.batch();
+      COLLS.forEach(k=>batch.set(db.collection('residentes').doc(k),{items:S[k]||[],ts:Date.now()}));
+      await batch.commit();
+      setSt('ok');
+    }catch(e){console.error('Save:',e);setSt('error');}
+  },600);
+}
+
+async function load(){
+  setSt('loading');
+  document.getElementById('content').innerHTML='<div class="card"><div class="empty"><div class="ei">⏳</div><p>Cargando datos…</p></div></div>';
+  if(IS_AS){
+    google.script.run
+      .withSuccessHandler(j=>{
+        try{const d=JSON.parse(j);COLLS.forEach(k=>{if(Array.isArray(d[k]))S[k]=d[k];});S.rid=S.residents[0]?.id||null;}catch(e){}
+        setSt('ok');render();
+      })
+      .withFailureHandler(e=>{console.error(e);setSt('error');render();})
+      .getData();
+    return;
+  }
+  if(!db){render();return;}
+  try{
+    const docs=await Promise.all(COLLS.map(k=>db.collection('residentes').doc(k).get()));
+    docs.forEach((doc,i)=>{
+      if(doc.exists&&Array.isArray(doc.data().items))
+        S[COLLS[i]]=[...new Map(doc.data().items.map(x=>[x.id,x])).values()];
+    });
+    S.rid=S.residents[0]?.id||null;
+    setSt('ok');
+  }catch(e){console.error('Load:',e);setSt('error');}
+  render();
+}
+
+function setSt(s){
+  const el=document.getElementById('saveStatus');if(!el)return;
+  const m={saving:'⏳ Guardando…',loading:'⏳ Cargando…',ok:'✅ Guardado',error:'❌ Error'};
+  el.textContent=m[s]||'';
+  if(s==='ok')setTimeout(()=>{el.textContent='';},3000);
+}
+
+// ===== CONFIGURACIÓN FIREBASE =====
+function oSettings(){
+  const cfg=localStorage.getItem('fb_config')||'';
+  om('🔥 Configurar Firebase',`
+    <div class="alert-i" style="margin-bottom:12px">
+      <strong>¿Dónde encontrar la config?</strong><br>
+      Firebase Console → Tu proyecto → ⚙️ Configuración del proyecto → Tu app web → Copiar el objeto <code>firebaseConfig</code>
+    </div>
+    <div class="fg"><label>Pegá aquí el firebaseConfig (objeto JSON)</label>
+    <textarea id="ffbcfg" style="min-height:140px;font-family:monospace;font-size:.74rem" placeholder='{\n  "apiKey": "AIza...",\n  "authDomain": "proyecto.firebaseapp.com",\n  "projectId": "proyecto-id",\n  "storageBucket": "proyecto.appspot.com",\n  "messagingSenderId": "123456789",\n  "appId": "1:123456789:web:abc123"\n}'>${cfg}</textarea></div>
+    <div style="font-size:.78rem;margin-top:4px">Estado: <strong style="color:${db?'var(--neo)':'var(--red)'}">${db?'🔥 Conectado a Firebase':'⚠️ Sin configurar — los datos no se guardan'}</strong></div>`,
+    `<button class="btn br bsm" onclick="clearFirebase()">Desconectar</button>
+    <button class="btn bg2" onclick="cm()">Cancelar</button>
+    <button class="btn bp" onclick="saveFirebaseCfg()">Conectar y cargar datos</button>`);
+}
+
+function saveFirebaseCfg(){
+  let raw=document.getElementById('ffbcfg').value.trim();
+  try{
+    raw=raw.replace(/^const\s+\w+\s*=\s*/,'').replace(/;?\s*$/,'');
+    const cfg=JSON.parse(raw);
+    if(!cfg.projectId)throw new Error('Falta projectId');
+    if(initFirebase(cfg)){
+      localStorage.setItem('fb_config',raw);
+      cm();load();
+    }else{alert('No se pudo conectar. Revisá la configuración.');}
+  }catch(e){alert('Error en la configuración: '+e.message);}
+}
+
+function clearFirebase(){
+  db=null;localStorage.removeItem('fb_config');updFbBtn();cm();
+}
+
+// ===== EXPORT / IMPORT JSON =====
+function exportJSON(){
+  const data=JSON.stringify(COLLS.reduce((o,k)=>(o[k]=S[k],o),{}),null,2);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+  a.download=`residentes_${hoy()}.json`;a.click();
+}
+function importJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  if(!confirm('Esto reemplaza todos los datos actuales. ¿Continuás?')){e.target.value='';return;}
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      COLLS.forEach(k=>{if(Array.isArray(d[k]))S[k]=d[k];});
+      S.rid=S.residents[0]?.id||null;
+      save();render();alert('✅ Importado correctamente.');
+    }catch(err){alert('❌ Archivo no válido.');}
+    e.target.value='';
+  };
+  r.readAsText(file);
+}
+
+// ===== RENDER =====
+function render(){rSel();rTabs();rContent();}
+function rSel(){
+  const el=document.getElementById('rsel');
+  el.innerHTML=`<select onchange="selR(this.value)" style="min-width:190px;border:1px solid var(--brd);border-radius:6px;padding:6px 9px;font-size:.8rem;background:var(--wht)">
+    <option value="">— Seleccionar residente —</option>
+    ${S.residents.map(x=>`<option value="${x.id}"${x.id===S.rid?' selected':''}>${x.apellido}, ${x.nombre} · ${x.anio}</option>`).join('')}
+  </select><button class="btn bg2 bsm" onclick="oAddR()">＋ Residente</button>`;
+}
+function rTabs(){
+  document.querySelectorAll('.tab').forEach(t=>{const tab=t.getAttribute('onclick').match(/'(\w+)'/)[1];t.className='tab'+(tab===S.tab?' act':'');});
+}
+function setTab(t){S.tab=t;rTabs();rContent();}
+function selR(id){S.rid=id||null;render();}
+function rContent(){
+  const el=document.getElementById('content'),r=aR();
+  if(!r&&S.tab!=='perfil'){el.innerHTML=`<div class="card"><div class="empty"><div class="ei">👤</div><p style="font-weight:700;margin-bottom:6px">Seleccioná un residente</p></div></div>`;return;}
+  ({perfil:tPerfil,rotaciones:tRots,evals:tEvals,procs:tProcs,guardias:tGuards,portafolio:tPort,ateneos:tAteneos,ciencia:tCiencia,licencias:tLicencias,comunidad:tComunidad,reporte:tRep})[S.tab]?.(r);
+}
+
+function genResidenteLink(rid){
+  const cfg=localStorage.getItem('fb_config');
+  if(!cfg){alert('Conectá Firebase primero para generar el link.');return;}
+  const base=window.location.href.split('/').slice(0,-1).join('/')+'/residente.html';
+  const link=`${base}?rid=${rid}#${btoa(cfg)}`;
+  if(navigator.clipboard){navigator.clipboard.writeText(link).then(()=>alert('✅ Link copiado al portapapeles!\n\nEnviáselo al residente por WhatsApp o email.'));}
+  else prompt('Copiá este link y enviáselo:',link);
+}
+
+// ===== PERFIL =====
+function tPerfil(r){
+  const el=document.getElementById('content');
+  if(!r){el.innerHTML=`<div class="card"><div class="empty"><div class="ei">🏥</div><p style="font-weight:700;margin-bottom:8px">Bienvenido al Sistema de Seguimiento</p><p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Residencia Neo-Pediátrica · Sanatorio 9 de Julio</p>${!db&&!IS_AS?'<p style="color:var(--red);font-size:.82rem;margin-bottom:12px">⚠️ Configurá Firebase para guardar datos</p>':''}<button class="btn bp" onclick="${!db&&!IS_AS?'oSettings':'oAddR'}()">'+(!db&&!IS_AS?'🔥 Configurar Firebase':'＋ Primer residente')+`</button></div></div>`;return;}
+  const ev=S.evals.filter(e=>e.rid===r.id),pr=S.procs.filter(p=>p.rid===r.id),gu=S.guardias.filter(g=>g.rid===r.id),ca=S.casos.filter(x=>x.rid===r.id);
+  const pnc={},ppc={};pr.forEach(p=>{if(PNEO.includes(p.tipo))pnc[p.tipo]=(pnc[p.tipo]||0)+1;if(PPED.includes(p.tipo))ppc[p.tipo]=(ppc[p.tipo]||0)+1;});
+  const doneN=PNEO.filter(p=>pnc[p]).length,doneP=PPED.filter(p=>ppc[p]).length;
+  el.innerHTML=`
+  <div class="card" style="background:linear-gradient(135deg,var(--pri),var(--neo));color:#fff;padding:22px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><div style="font-size:.68rem;opacity:.75;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">🏥 Residencia Neo-Pediátrica</div>
+        <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:3px">${r.apellido}, ${r.nombre}</h2>
+        <div style="opacity:.88;font-size:.82rem">${r.anio} · Ingreso: ${fd(r.fechaIng)}</div>
+        <div style="opacity:.7;font-size:.74rem;margin-top:3px">${r.matricula?'Mat. '+r.matricula:''} ${r.dni?'DNI '+r.dni:''}</div>
+      </div>
+      <button class="btn bsm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="oEditR('${r.id}')">✏️ Editar</button>
+    </div>
+  </div>
+  <div class="g4" style="margin-bottom:14px">
+    ${[['Evaluaciones',ev.length],['Procedimientos',pr.length],['Guardias',gu.length],['Casos',ca.length]].map(([l,n])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('')}
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:0"><div class="ch"><div><div class="ct" style="color:var(--neo)">🟢 Procedimientos Neo</div><div class="cs">${doneN}/${PNEO.length}</div></div><span style="font-weight:800;color:var(--neo)">${Math.round(doneN/PNEO.length*100)}%</span></div><div class="pw"><div class="pb pb-neo" style="width:${Math.round(doneN/PNEO.length*100)}%"></div></div></div>
+    <div class="card" style="margin-bottom:0"><div class="ch"><div><div class="ct" style="color:var(--pri)">🔵 Procedimientos Ped</div><div class="cs">${doneP}/${PPED.length}</div></div><span style="font-weight:800;color:var(--pri)">${Math.round(doneP/PPED.length*100)}%</span></div><div class="pw"><div class="pb pb-pri" style="width:${Math.round(doneP/PPED.length*100)}%"></div></div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Datos del Residente</div><button class="btn bg2 bsm" onclick="oEditR('${r.id}')">Editar</button></div>
+    <div class="g2">${[['Matrícula',r.matricula],['DNI',r.dni],['Email',r.email],['Teléfono',r.tel],['Universidad',r.uni],['Tutor / Instructora',r.tutor]].map(([l,v])=>`<div><div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:2px">${l}</div><div style="font-size:.85rem">${v||'—'}</div></div>`).join('')}</div>
+    ${r.obs?`<div style="margin-top:12px"><div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:4px">Observaciones</div><div style="font-size:.82rem;background:var(--bg);padding:10px;border-radius:6px">${r.obs}</div></div>`:''}
+  </div>`;
+}
+
+// ===== ROTACIONES =====
+function rotGlobalBadge(ro){
+  const vs=Object.values(ro.comps||{}).filter(Boolean);
+  if(!vs.length)return'<span class="badge" style="background:#e2e8f0;color:#718096">Sin calificar</span>';
+  const p=Math.round(avg(vs));return`<span class="sc ${ROT_CSS[p]||'sm'}">${ROT_LBL[p]||'—'}</span>`;
+}
+function tRots(r){
+  const el=document.getElementById('content');
+  let rows=S.rots.filter(x=>x.rid===r.id);
+  if(rotFilter!=='all')rows=rows.filter(x=>x.categoria===rotFilter);
+  rows=rows.sort((a,b)=>b.fi.localeCompare(a.fi));
+  const all=S.rots.filter(x=>x.rid===r.id);
+  const cnt=cat=>all.filter(x=>x.categoria===cat).length;
+  el.innerHTML=`<div class="card">
+    <div class="ch"><div><div class="ct">Rotaciones</div><div class="cs">${all.length} total</div></div>
+    <button class="btn bsm" style="background:var(--pri);color:#fff" onclick="oAddRot('${r.id}')">＋ Nueva rotación</button></div>
+    <div class="subtabs">
+      <button class="stab${rotFilter==='all'?' act':''}" onclick="rotFilter='all';tRots(aR())">Todas (${all.length})</button>
+      <button class="stab stab-neo${rotFilter==='neo'?' act':''}" onclick="rotFilter='neo';tRots(aR())">🟢 Neo (${cnt('neo')})</button>
+      <button class="stab${rotFilter==='ped'?' act':''}" onclick="rotFilter='ped';tRots(aR())">🔵 Ped (${cnt('ped')})</button>
+      <button class="stab stab-otras${rotFilter==='otras'?' act':''}" onclick="rotFilter='otras';tRots(aR())">⚪ Otras (${cnt('otras')})</button>
+    </div>
+    ${!rows.length?`<div class="empty"><div class="ei">🔄</div><p>Sin rotaciones</p></div>`:`
+    <div class="tw"><table>
+      <thead><tr><th>Categoría</th><th>Rotación</th><th>Sede</th><th>Docente</th><th>Desde</th><th>Hasta</th><th>Desempeño</th><th>Estado</th><th></th></tr></thead>
+      <tbody>${rows.map(ro=>`<tr>
+        <td><span class="badge ${CAT_CSS[ro.categoria]||'cat-otras'}">${CAT_LBL[ro.categoria]||'—'}</span></td>
+        <td><strong>${ro.serv==='Otras'?(ro.otraDesc||'Otras'):ro.serv}</strong></td>
+        <td style="font-size:.75rem;color:var(--muted)">${ro.sede||'—'}</td>
+        <td style="font-size:.75rem">${ro.docente||'—'}</td>
+        <td>${fd(ro.fi)}</td><td>${ro.ff?fd(ro.ff):'<em style="color:var(--muted)">en curso</em>'}</td>
+        <td>${rotGlobalBadge(ro)}</td>
+        <td>${ro.apr===true?'<span class="badge" style="background:#c6f6d5;color:#276749">✓ Aprobada</span>':ro.apr===false?'<span class="badge" style="background:#fed7d7;color:#c53030">✗ No aprobada</span>':'<span class="badge" style="background:#e2e8f0;color:#718096">Pendiente</span>'}</td>
+        <td><button class="btn bg2 bsm" onclick="oEditRot('${ro.id}')">✏️</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>`;
+}
+
+function oAddRot(rid){
+  window._RUBS=window._RUBS||{};window._RUBS['nr']={};
+  om('Registrar Rotación',`
+    <div class="fg"><label>Categoría</label><select id="fcat" onchange="updRotInput(this.value)"><option value="neo">🟢 Neonatología</option><option value="ped">🔵 Pediatría</option><option value="otras">⚪ Otras</option></select></div>
+    <div class="fr">
+      <div class="fg" id="div-serv-std"><label id="lbl-serv">Rotación</label><input id="fserv" list="dl-neo" placeholder="Elegí o escribí"></div>
+      <div class="fg" id="div-serv-otras" style="display:none"><label>Nombre de la rotación</label><input id="fotraDesc" placeholder="Describí la rotación"></div>
+      <div class="fg"><label>Sede</label><input id="fsede" placeholder="Sanatorio 9 de Julio…"></div>
+    </div>
+    <div class="fr"><div class="fg"><label>Fecha inicio</label><input type="date" id="ffi" value="${hoy()}"></div><div class="fg"><label>Fecha fin</label><input type="date" id="fff"></div></div>
+    <div class="fg"><label>Docente / Tutor a cargo</label><input id="fdocente" placeholder="Nombre del docente"></div>
+    <div class="sd">Evaluación por Competencias</div>
+    ${rubricaHTML('nr')}
+    <div class="fg"><label>Estado</label><select id="fapr"><option value="">Pendiente</option><option value="true">Aprobada</option><option value="false">No aprobada</option></select></div>
+    <div class="fg"><label>Logros / Fortalezas</label><textarea id="flogros"></textarea></div>
+    <div class="fg"><label>Áreas a fortalecer</label><textarea id="fareas"></textarea></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svRot('${rid}')">Guardar</button>`);
+}
+function updRotInput(cat){
+  const stdDiv=document.getElementById('div-serv-std'),otraDiv=document.getElementById('div-serv-otras'),inp=document.getElementById('fserv'),lbl=document.getElementById('lbl-serv');
+  if(cat==='otras'){stdDiv.style.display='none';otraDiv.style.display='';}
+  else{stdDiv.style.display='';otraDiv.style.display='none';inp.setAttribute('list',cat==='neo'?'dl-neo':'dl-ped');lbl.textContent=cat==='neo'?'Rotación Neonatología':'Rotación Pediatría';}
+}
+function oEditRot(id){
+  const ro=S.rots.find(r=>r.id===id);if(!ro)return;
+  window._RUBS=window._RUBS||{};window._RUBS['er']={...ro.comps||{}};
+  om('Editar Rotación',`<input type="hidden" id="froid" value="${id}">
+    <div class="fg"><label>Categoría</label><select id="fcat" onchange="updRotInput(this.value)"><option value="neo"${ro.categoria==='neo'?' selected':''}>🟢 Neonatología</option><option value="ped"${ro.categoria==='ped'?' selected':''}>🔵 Pediatría</option><option value="otras"${ro.categoria==='otras'?' selected':''}>⚪ Otras</option></select></div>
+    <div class="fr">
+      <div class="fg" id="div-serv-std"${ro.categoria==='otras'?' style="display:none"':''}><label id="lbl-serv">Rotación</label><input id="fserv" list="dl-${ro.categoria==='ped'?'ped':'neo'}" value="${ro.serv}"></div>
+      <div class="fg" id="div-serv-otras"${ro.categoria!=='otras'?' style="display:none"':''}><label>Nombre</label><input id="fotraDesc" value="${ro.otraDesc||''}"></div>
+      <div class="fg"><label>Sede</label><input id="fsede" value="${ro.sede||''}"></div>
+    </div>
+    <div class="fr"><div class="fg"><label>Fecha inicio</label><input type="date" id="ffi" value="${ro.fi}"></div><div class="fg"><label>Fecha fin</label><input type="date" id="fff" value="${ro.ff||''}"></div></div>
+    <div class="fg"><label>Docente</label><input id="fdocente" value="${ro.docente||''}"></div>
+    <div class="sd">Evaluación por Competencias</div>${rubricaHTML('er',ro.comps||{})}
+    <div class="fg"><label>Estado</label><select id="fapr"><option value=""${ro.apr==null?' selected':''}>Pendiente</option><option value="true"${ro.apr===true?' selected':''}>Aprobada</option><option value="false"${ro.apr===false?' selected':''}>No aprobada</option></select></div>
+    <div class="fg"><label>Logros</label><textarea id="flogros">${ro.logros||''}</textarea></div>
+    <div class="fg"><label>Áreas</label><textarea id="fareas">${ro.areas||''}</textarea></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs">${ro.obs||''}</textarea></div>`,
+    `<button class="btn br bsm" onclick="del('rots','${id}');cm()">Eliminar</button><button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svRot('${ro.rid}','${id}')">Guardar</button>`);
+}
+function svRot(rid,id){
+  const pre=id?'er':'nr',cat=document.getElementById('fcat').value,esOtras=cat==='otras';
+  const servVal=esOtras?(document.getElementById('fotraDesc')?.value||'Otra rotación'):(document.getElementById('fserv')?.value||'');
+  const d={rid,categoria:cat,serv:esOtras?'Otras':servVal,otraDesc:esOtras?servVal:'',
+    sede:document.getElementById('fsede').value,docente:document.getElementById('fdocente').value,
+    fi:document.getElementById('ffi').value,ff:document.getElementById('fff').value||null,
+    comps:{...(window._RUBS?.[pre]||{})},
+    apr:document.getElementById('fapr').value===''?null:document.getElementById('fapr').value==='true',
+    logros:document.getElementById('flogros').value,areas:document.getElementById('fareas').value,obs:document.getElementById('fobs').value};
+  if(id){const i=S.rots.findIndex(r=>r.id===id);if(i>=0)S.rots[i]={...S.rots[i],...d};}
+  else S.rots.push({id:uid(),...d});
+  if(window._RUBS)window._RUBS[pre]={};
+  save();cm();tRots(aR());
+}
+
+// ===== EVALUACIONES =====
+function tEvals(r){
+  const el=document.getElementById('content');
+  const rows=S.evals.filter(e=>e.rid===r.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const bt=t=>S.evals.filter(e=>e.rid===r.id&&e.tipo===t);
+  el.innerHTML=`<div class="card">
+    <div class="ch"><div><div class="ct">Evaluaciones</div><div class="cs">${rows.length} total</div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn bg2 bsm" onclick="oEval('${r.id}','simulacion')">🎯 Simulación</button>
+      <button class="btn bp bsm" onclick="oEval('${r.id}','teorico')">📝 Teórico</button>
+      <button class="btn bg2 bsm" onclick="oEval('${r.id}','paseSala')">🏥 Pase de sala</button>
+      <button class="btn bg2 bsm" onclick="oEval('${r.id}','auditoria')">📋 Auditoría HC</button>
+    </div></div>
+    <div class="g4" style="margin-bottom:16px">
+      ${['simulacion','teorico','paseSala','auditoria'].map(t=>{const list=bt(t),sc2=list.filter(e=>e.score!=null).map(e=>e.score);return`<div class="stat"><div style="font-size:1rem;margin-bottom:3px">${TICO[t]}</div><div class="n" style="font-size:1.1rem">${list.length}</div><div class="l">${TLBL[t]}</div>${sc2.length?`<div style="font-size:.68rem;color:var(--muted);margin-top:3px">Prom: ${avg(sc2).toFixed(1)}</div>`:''}</div>`;}).join('')}
+    </div>
+    ${!rows.length?`<div class="empty"><div class="ei">⭐</div><p>Sin evaluaciones</p></div>`:`
+    <div class="tw"><table>
+      <thead><tr><th>Tipo</th><th>Fecha</th><th>Rotación</th><th>Docente evaluador/a</th><th>Puntaje</th><th>Resultado</th><th>Razonamiento</th><th>Plan</th><th></th></tr></thead>
+      <tbody>${rows.map(e=>`<tr>
+        <td>${TICO[e.tipo]||'📝'} ${TLBL[e.tipo]||e.tipo}</td>
+        <td>${fd(e.fecha)}</td><td style="font-size:.75rem">${e.rot||'—'}</td>
+        <td style="font-size:.75rem;font-weight:600">${e.docente||'—'}</td>
+        <td>${e.score!=null?`<span class="sc ${scl(e.score)}">${e.score}/10</span>`:'—'}</td>
+        <td>${e.res?`<span class="sc ${e.res==='Aprobado'?'sh':e.res==='No aprobado'?'sl':'sm'}">${e.res}</span>`:'—'}</td>
+        <td style="font-size:.74rem;color:var(--muted);max-width:120px">${e.razon?e.razon.substring(0,55)+'…':'—'}</td>
+        <td style="font-size:.74rem;color:var(--muted);max-width:120px">${e.plan?e.plan.substring(0,55)+'…':'—'}</td>
+        <td style="white-space:nowrap"><button class="btn bg2 bsm" onclick="oEditEval('${e.id}')">✏️</button> <button class="btn bg2 bsm" style="color:var(--red)" onclick="del('evals','${e.id}')">🗑</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>`;
+}
+
+function oEval(rid,tipo){
+  let ex='';
+  if(tipo==='minicex'){
+    ex=`<div class="sd">Dominios Mini-CEX (1 inferior · 5 satisfactorio · 9 superior)</div>
+    ${MCEX.map((d,i)=>`<div style="margin-bottom:10px"><div style="font-size:.78rem;font-weight:600;margin-bottom:5px">${d}</div><div style="display:flex;gap:3px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" style="flex:1;padding:5px 2px;border:1px solid var(--brd);border-radius:4px;background:var(--bg);cursor:pointer;font-size:.75rem;font-weight:600;text-align:center" id="mc${i}_${n}" onclick="srat('mc${i}',${n},9)">${n}</button>`).join('')}</div></div>`).join('')}`;
+  }
+  om(`Nueva evaluación: ${TLBL[tipo]||tipo}`,`
+    <div class="fr"><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div>
+    <div class="fg"><label>Docente evaluador/a</label><input id="fdocente" placeholder="Nombre del docente"></div></div>
+    <div class="fg"><label>Rotación en curso</label><input id="frot" list="dl-neo"></div>
+    ${ex}
+    <div class="fr"><div class="fg"><label>Puntaje global (0–10)</label><input type="number" id="fsc" min="0" max="10" step=".1"></div>
+    <div class="fg"><label>Resultado</label><select id="fres"><option value="">—</option><option>Aprobado</option><option>No aprobado</option><option>Necesita refuerzo</option></select></div></div>
+    <div class="sd">Marco Conceptual</div>
+    <div class="csec"><div class="csec-title">Razonamiento clínico observado</div><textarea id="frazon"></textarea></div>
+    <div class="csec"><div class="csec-title">Integración de evidencia (SAP, PRONEO, SIBEN, SEUP)</div><textarea id="fevid"></textarea></div>
+    <div class="csec"><div class="csec-title">Fortalezas identificadas</div><textarea id="ffort"></textarea></div>
+    <div class="csec"><div class="csec-title">Áreas de mejora</div><textarea id="fmej"></textarea></div>
+    <div class="csec"><div class="csec-title">Autoevaluación del residente</div><textarea id="fauto"></textarea></div>
+    <div class="csec"><div class="csec-title">Plan de acción acordado</div><textarea id="fplan"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svEval('${rid}','${tipo}')">Guardar</button>`);
+}
+window._RAT={};
+function srat(pre,val,mx){
+  for(let i=1;i<=mx;i++){const b=document.getElementById(`${pre}_${i}`);if(b){b.style.background='var(--bg)';b.style.color='var(--txt)';b.style.borderColor='var(--brd)';}}
+  const b=document.getElementById(`${pre}_${val}`);if(b){b.style.background='var(--pri)';b.style.color='#fff';b.style.borderColor='var(--pri)';}
+  window._RAT[pre]=val;
+}
+function svEval(rid,tipo){
+  const sc=document.getElementById('fsc').value;
+  S.evals.push({id:uid(),rid,tipo,fecha:document.getElementById('ff2').value||hoy(),
+    docente:document.getElementById('fdocente')?.value||'',rot:document.getElementById('frot')?.value||'',
+    score:sc!==''?parseFloat(sc):null,res:document.getElementById('fres')?.value||'',
+    razon:document.getElementById('frazon')?.value||'',evid:document.getElementById('fevid')?.value||'',
+    fort:document.getElementById('ffort')?.value||'',mej:document.getElementById('fmej')?.value||'',
+    auto:document.getElementById('fauto')?.value||'',plan:document.getElementById('fplan')?.value||'',
+    dominios:{...window._RAT}});
+  window._RAT={};save();cm();render();
+}
+function oEditEval(id){
+  const e=S.evals.find(x=>x.id===id);if(!e)return;
+  om(`Editar: ${TLBL[e.tipo]||e.tipo}`,`
+    <div class="fr"><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${e.fecha}"></div>
+    <div class="fg"><label>Docente</label><input id="fdocente" value="${e.docente||''}"></div></div>
+    <div class="fg"><label>Rotación</label><input id="frot" list="dl-neo" value="${e.rot||''}"></div>
+    <div class="fr"><div class="fg"><label>Puntaje (0–10)</label><input type="number" id="fsc" min="0" max="10" step=".1" value="${e.score??''}"></div>
+    <div class="fg"><label>Resultado</label><select id="fres"><option value="">—</option><option${e.res==='Aprobado'?' selected':''}>Aprobado</option><option${e.res==='No aprobado'?' selected':''}>No aprobado</option><option${e.res==='Necesita refuerzo'?' selected':''}>Necesita refuerzo</option></select></div></div>
+    <div class="sd">Marco Conceptual</div>
+    <div class="csec"><div class="csec-title">Razonamiento clínico</div><textarea id="frazon">${e.razon||''}</textarea></div>
+    <div class="csec"><div class="csec-title">Integración de evidencia</div><textarea id="fevid">${e.evid||''}</textarea></div>
+    <div class="csec"><div class="csec-title">Fortalezas</div><textarea id="ffort">${e.fort||''}</textarea></div>
+    <div class="csec"><div class="csec-title">Áreas de mejora</div><textarea id="fmej">${e.mej||''}</textarea></div>
+    <div class="csec"><div class="csec-title">Autoevaluación del residente</div><textarea id="fauto">${e.auto||''}</textarea></div>
+    <div class="csec"><div class="csec-title">Plan de acción acordado</div><textarea id="fplan">${e.plan||''}</textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svEditEval('${id}')">Guardar cambios</button>`);
+}
+function svEditEval(id){
+  const i=S.evals.findIndex(x=>x.id===id);if(i<0)return;
+  const sc=document.getElementById('fsc').value;
+  S.evals[i]={...S.evals[i],fecha:document.getElementById('ff2').value,docente:document.getElementById('fdocente')?.value||'',rot:document.getElementById('frot')?.value||'',
+    score:sc!==''?parseFloat(sc):null,res:document.getElementById('fres')?.value||'',
+    razon:document.getElementById('frazon')?.value||'',evid:document.getElementById('fevid')?.value||'',
+    fort:document.getElementById('ffort')?.value||'',mej:document.getElementById('fmej')?.value||'',
+    auto:document.getElementById('fauto')?.value||'',plan:document.getElementById('fplan')?.value||''};
+  save();cm();render();
+}
+
+// ===== PROCEDIMIENTOS =====
+function tProcs(r){
+  const el=document.getElementById('content');
+  const pr=S.procs.filter(p=>p.rid===r.id),pnc={},ppc={};
+  pr.forEach(p=>{if(PNEO.includes(p.tipo))pnc[p.tipo]=(pnc[p.tipo]||0)+1;if(PPED.includes(p.tipo))ppc[p.tipo]=(ppc[p.tipo]||0)+1;});
+  const doneN=PNEO.filter(p=>pnc[p]).length,doneP=PPED.filter(p=>ppc[p]).length;
+  el.innerHTML=`
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:0">
+      <div class="ch"><div><div class="ct" style="color:var(--neo)">🟢 Neonatología</div><div class="cs">${doneN}/${PNEO.length}</div></div><span style="font-weight:800;color:var(--neo)">${Math.round(doneN/PNEO.length*100)}%</span></div>
+      <div class="pw" style="margin-bottom:12px"><div class="pb pb-neo" style="width:${Math.round(doneN/PNEO.length*100)}%"></div></div>
+      <div>${PNEO.map(p=>{const c=pnc[p]||0;return`<div class="cli"><input type="checkbox" class="clc"${c?' checked':''} disabled><span style="${c?'':'color:var(--muted)'}">${p}</span><span class="cln" style="${c?'background:var(--neo);color:#fff':''}">${c}</span></div>`;}).join('')}</div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ch"><div><div class="ct" style="color:var(--pri)">🔵 Pediatría</div><div class="cs">${doneP}/${PPED.length}</div></div><span style="font-weight:800;color:var(--pri)">${Math.round(doneP/PPED.length*100)}%</span></div>
+      <div class="pw" style="margin-bottom:12px"><div class="pb pb-pri" style="width:${Math.round(doneP/PPED.length*100)}%"></div></div>
+      <div>${PPED.map(p=>{const c=ppc[p]||0;return`<div class="cli"><input type="checkbox" class="clc"${c?' checked':''} disabled><span style="${c?'':'color:var(--muted)'}">${p}</span><span class="cln" style="${c?'background:var(--pri);color:#fff':''}">${c}</span></div>`;}).join('')}</div>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct">Registro (${pr.length})</div><button class="btn bp bsm" onclick="oProc('${r.id}')">＋ Procedimiento</button></div>
+  ${!pr.length?`<div class="empty"><div class="ei">🏥</div><p>Sin procedimientos</p></div>`:`
+  <div class="tw"><table><thead><tr><th>Procedimiento</th><th>Área</th><th>Fecha</th><th>Rotación</th><th>Supervisor</th><th>Nivel</th><th></th></tr></thead>
+  <tbody>${pr.sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(p=>`<tr>
+    <td><strong style="font-size:.79rem">${p.tipo}</strong></td>
+    <td><span class="badge ${PNEO.includes(p.tipo)?'cat-neo':'cat-ped'}">${PNEO.includes(p.tipo)?'Neo':'Ped'}</span></td>
+    <td>${fd(p.fecha)}</td><td style="font-size:.75rem">${p.rot||'—'}</td><td style="font-size:.75rem">${p.sup||'—'}</td>
+    <td>${p.niv?`<span class="badge" style="background:${p.niv==='autónomo'?'#c6f6d5':p.niv==='supervisado'?'#bee3f8':'#fefcbf'};color:${p.niv==='autónomo'?'#276749':p.niv==='supervisado'?'#2c5282':'#744210'}">${p.niv}</span>`:'—'}</td>
+    <td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('procs','${p.id}')">🗑</button></td>
+  </tr>`).join('')}</tbody></table></div>`}</div>`;
+}
+function oProc(rid){
+  om('Registrar Procedimiento',`
+    <div class="fr"><div class="fg"><label>Procedimiento</label><select id="ftipo"><option value="">— Seleccionar —</option><optgroup label="🟢 Neonatología">${PNEO.map(p=>`<option>${p}</option>`).join('')}</optgroup><optgroup label="🔵 Pediatría">${PPED.map(p=>`<option>${p}</option>`).join('')}</optgroup></select></div>
+    <div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div></div>
+    <div class="fr"><div class="fg"><label>Rotación</label><input id="frot" list="dl-neo"></div><div class="fg"><label>Supervisor</label><input id="fsup"></div></div>
+    <div class="fg"><label>Nivel de autonomía</label><select id="fniv"><option value="">—</option><option value="observado">Observado</option><option value="supervisado">Supervisado</option><option value="autónomo">Autónomo</option></select></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svProc('${rid}')">Guardar</button>`);
+}
+function svProc(rid){
+  const t=document.getElementById('ftipo').value;if(!t){alert('Seleccioná un procedimiento.');return;}
+  S.procs.push({id:uid(),rid,tipo:t,fecha:document.getElementById('ff2').value||hoy(),rot:document.getElementById('frot').value,sup:document.getElementById('fsup').value,niv:document.getElementById('fniv').value,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+
+// ===== GUARDIAS (CALENDARIO) =====
+function tGuards(r){
+  const el=document.getElementById('content');
+  const gu=S.guardias.filter(g=>g.rid===r.id);
+  const now=new Date();
+  if(!window._gcal)window._gcal={y:now.getFullYear(),m:now.getMonth()};
+  const {y,m}=window._gcal;
+  const firstDay=new Date(y,m,1).getDay(),daysInMonth=new Date(y,m+1,0).getDate();
+  const monthLabel=new Date(y,m,1).toLocaleString('es-AR',{month:'long',year:'numeric'});
+  const mesStr=`${y}-${String(m+1).padStart(2,'0')}`;
+  const guardDays={};
+  gu.forEach(g=>{if(g.fecha&&g.fecha.startsWith(mesStr)){const d=parseInt(g.fecha.split('-')[2]);if(!guardDays[d])guardDays[d]=[];guardDays[d].push(g);}});
+  const gm=Object.values(guardDays).reduce((s,a)=>s+a.length,0),maxM=parseInt(r.anio)>=5?5:6;
+  const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let cal=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">${DN.map(d=>`<div style="text-align:center;font-size:.64rem;font-weight:700;color:var(--muted);padding:4px 0">${d}</div>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">`;
+  for(let i=0;i<firstDay;i++)cal+=`<div></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const date=new Date(y,m,d),isFds=date.getDay()===0||date.getDay()===6;
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const gs=guardDays[d]||[],hasG=gs.length>0,isToday=dateStr===hoy();
+    const bg=hasG?(isFds?'#fefcbf':'var(--pri-bg)'):'var(--bg)',col=hasG?(isFds?'#744210':'var(--pri)'):'var(--txt)';
+    const brd=isToday?`2px solid var(--pri)`:`1px solid ${hasG?(isFds?'#d69e2e':'var(--pri-acc)'):'var(--brd)'}`;
+    cal+=`<div onclick="oGuardiaDay('${r.id}','${dateStr}',${isFds})" style="background:${bg};border:${brd};border-radius:6px;padding:5px 2px;text-align:center;cursor:pointer;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+      <span style="font-size:.8rem;font-weight:${isToday?800:400};color:${col}">${d}</span>
+      ${hasG?`<span style="font-size:.58rem;background:${isFds?'#d69e2e':'var(--pri)'};color:#fff;border-radius:10px;padding:1px 5px;font-weight:700">${gs.length>1?gs.length+'×':'✓'}</span>`:isFds?`<span style="font-size:.56rem;color:var(--muted);opacity:.45">FS</span>`:''}
+    </div>`;
+  }
+  cal+=`</div>`;
+  el.innerHTML=`<div class="card">
+    <div class="ch"><div><div class="ct">Guardias</div><div class="cs">${gm} este mes · Máx: ${maxM}/mes${gm>maxM?' ⚠️':''}</div></div>
+    <button class="btn bg2 bsm" onclick="oGuardia('${r.id}')">＋ Manual</button></div>
+    <div class="g3" style="margin-bottom:14px">
+      <div class="stat"><div class="n">${gm}</div><div class="l">Este mes</div></div>
+      <div class="stat"><div class="n">${gu.filter(g=>g.tipo==='fds').length}</div><div class="l">Fin de semana</div></div>
+      <div class="stat"><div class="n">${gu.length}</div><div class="l">Total</div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <button class="btn bg2" onclick="window._gcal.m--;if(window._gcal.m<0){window._gcal.m=11;window._gcal.y--;}tGuards(aR())">◀ Anterior</button>
+      <span style="font-weight:700;font-size:.9rem;text-transform:capitalize">${monthLabel}</span>
+      <button class="btn bg2" onclick="window._gcal.m++;if(window._gcal.m>11){window._gcal.m=0;window._gcal.y++;}tGuards(aR())">Siguiente ▶</button>
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);margin-bottom:10px">Tocá un día para registrar ·
+      <span style="background:var(--pri-bg);color:var(--pri);padding:1px 7px;border-radius:10px;font-weight:700">Semana</span>
+      <span style="background:#fefcbf;color:#744210;padding:1px 7px;border-radius:10px;font-weight:700;margin-left:4px">Fin de semana</span>
+    </div>
+    ${cal}
+  </div>`;
+}
+function oGuardiaDay(rid,dateStr,isFds){
+  const existing=S.guardias.filter(g=>g.rid===rid&&g.fecha===dateStr);
+  om(`${fd(dateStr)} · ${isFds?'🟡 Fin de semana':'📅 Semana'}`,`
+    ${existing.length?`<div style="margin-bottom:14px"><div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Guardias registradas</div>
+    ${existing.map(g=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg);padding:8px 10px;border-radius:6px;margin-bottom:6px;font-size:.82rem">🏥 <strong>${g.serv||'—'}</strong>${g.sup?` · ${g.sup}`:''}
+    <button class="btn br bsm" style="margin-left:auto" onclick="del('guardias','${g.id}');cm();tGuards(aR())">🗑</button></div>`).join('')}
+    </div><div class="sd">Agregar otra guardia</div>`:''}
+    <div class="fr"><div class="fg"><label>Servicio</label><select id="fserv"><option>Guardia pediátrica</option><option>Neonatología</option><option>UCIP</option><option>Rotación externa</option></select></div>
+    <div class="fg"><label>Supervisor</label><input id="fsup" placeholder="Nombre"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cerrar</button><button class="btn bp" onclick="svGuardiaFast('${rid}','${dateStr}','${isFds?'fds':'semana'}')">Guardar</button>`);
+}
+function svGuardiaFast(rid,dateStr,tipo){
+  S.guardias.push({id:uid(),rid,fecha:dateStr,tipo,serv:document.getElementById('fserv')?.value||'',sup:document.getElementById('fsup')?.value||'',obs:document.getElementById('fobs')?.value||''});
+  save();cm();tGuards(aR());
+}
+function oGuardia(rid){
+  om('Registrar Guardia (manual)',`
+    <div class="fr"><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div>
+    <div class="fg"><label>Tipo</label><select id="ftipo"><option value="semana">Día de semana</option><option value="fds">Fin de semana</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Servicio</label><select id="fserv"><option>Guardia pediátrica</option><option>Neonatología</option><option>UCIP</option><option>Rotación externa</option></select></div>
+    <div class="fg"><label>Supervisor</label><input id="fsup"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svGuardia('${rid}')">Guardar</button>`);
+}
+function svGuardia(rid){
+  S.guardias.push({id:uid(),rid,fecha:document.getElementById('ff2').value||hoy(),tipo:document.getElementById('ftipo').value,serv:document.getElementById('fserv').value,sup:document.getElementById('fsup').value,obs:document.getElementById('fobs').value});
+  save();cm();tGuards(aR());
+}
+
+// ===== PORTAFOLIO =====
+function tPort(r){
+  const el=document.getElementById('content');
+  const ca=S.casos.filter(x=>x.rid===r.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const sts=S.stats.filter(x=>x.rid===r.id).sort((a,b)=>b.periodo.localeCompare(a.periodo));
+  const amb={internacion:'🏥 Internación',consultorio:'🏠 Consultorio',shockroom:'🚨 Shock room',neonatal:'👶 Área neonatal'};
+  const totG=sts.reduce((s,x)=>s+(+x.guardia||0),0),totI=sts.reduce((s,x)=>s+(+x.intern||0),0),totC=sts.reduce((s,x)=>s+(+x.cext||0),0),totAR=sts.reduce((s,x)=>s+(+x.alto||0),0);
+  el.innerHTML=`
+  <div class="card"><div class="ch"><div><div class="ct">📊 Estadísticas Mensuales</div></div><button class="btn bp bsm" onclick="oStats('${r.id}')">＋ Mes</button></div>
+  ${sts.length?`<div class="g4" style="margin-bottom:14px"><div class="stat"><div class="n">${totG}</div><div class="l">Guardia</div></div><div class="stat"><div class="n">${totI}</div><div class="l">Internación</div></div><div class="stat"><div class="n">${totC}</div><div class="l">Consultorio</div></div><div class="stat"><div class="n">${totAR}</div><div class="l">Alto riesgo</div></div></div>
+  <div class="tw"><table><thead><tr><th>Período</th><th>Guardia</th><th>Internación</th><th>Cons.ext.</th><th>Alto riesgo</th><th>Nacimientos</th><th>Ing.neo</th><th>UCIP</th><th>Cirugía</th><th>Otros</th><th>Total</th><th></th></tr></thead>
+  <tbody>${sts.map(x=>{const tot=(+x.guardia||0)+(+x.intern||0)+(+x.cext||0)+(+x.alto||0)+(+x.nac||0)+(+x.ingneo||0)+(+x.ucip||0)+(+x.cir||0)+(+x.otros||0);return`<tr><td><strong>${x.periodo}</strong></td><td style="text-align:center">${x.guardia||0}</td><td style="text-align:center">${x.intern||0}</td><td style="text-align:center">${x.cext||0}</td><td style="text-align:center">${x.alto||0}</td><td style="text-align:center">${x.nac||0}</td><td style="text-align:center">${x.ingneo||0}</td><td style="text-align:center">${x.ucip||0}</td><td style="text-align:center">${x.cir||0}</td><td style="text-align:center">${x.otros||0}</td><td><strong style="color:var(--pri)">${tot}</strong></td><td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('stats','${x.id}')">🗑</button></td></tr>`;}).join('')}</tbody></table></div>`:`<div class="empty"><div class="ei">📊</div><p>Sin estadísticas</p></div>`}
+  </div>
+  <div class="card"><div class="ch"><div><div class="ct">📚 Portafolio de Casos</div><div class="cs">${ca.length} casos</div></div><button class="btn bp bsm" onclick="oCaso('${r.id}')">＋ Caso</button></div>
+  ${!ca.length?`<div class="empty"><div class="ei">📚</div><p>Sin casos</p></div>`:`
+  <div class="tw"><table><thead><tr><th>Fecha</th><th>Diagnóstico</th><th>Ámbito</th><th>Rotación</th><th>Complejidad</th><th>Competencia</th><th></th></tr></thead>
+  <tbody>${ca.map(x=>`<tr><td>${fd(x.fecha)}</td><td><strong style="font-size:.8rem">${x.diag}</strong></td><td style="font-size:.75rem">${amb[x.amb]||x.amb||'—'}</td><td style="font-size:.75rem">${x.rot||'—'}</td><td>${x.compl?`<span class="badge" style="background:${x.compl==='alta'?'#fed7d7':x.compl==='media'?'#fefcbf':'#c6f6d5'};color:${x.compl==='alta'?'#c53030':x.compl==='media'?'#744210':'#276749'}">${x.compl}</span>`:'—'}</td><td style="font-size:.74rem;color:var(--muted);max-width:150px">${x.comp?x.comp.substring(0,65):'—'}</td><td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('casos','${x.id}')">🗑</button></td></tr>`).join('')}
+  </tbody></table></div>`}
+  </div>`;
+}
+function oStats(rid){
+  om('Estadísticas Mensuales',`
+    <div class="fr"><div class="fg"><label>Período</label><input id="fper" placeholder="Ej: Julio 2025"></div><div class="fg"><label>Rotación del mes</label><input id="frot" list="dl-neo"></div></div>
+    <div class="sd">Consultas por ámbito</div>
+    <div class="fr"><div class="fg"><label>Guardia</label><input type="number" id="fgu" min="0" value="0"></div><div class="fg"><label>Internación</label><input type="number" id="fin" min="0" value="0"></div></div>
+    <div class="fr"><div class="fg"><label>Consultorio externo</label><input type="number" id="fce" min="0" value="0"></div><div class="fg"><label>Alto riesgo</label><input type="number" id="far" min="0" value="0"></div></div>
+    <div class="fr"><div class="fg"><label>Nacimientos</label><input type="number" id="fnac" min="0" value="0"></div><div class="fg"><label>Ingresos neonatología</label><input type="number" id="fingneo" min="0" value="0"></div></div>
+    <div class="fr"><div class="fg"><label>UCIP</label><input type="number" id="fucip" min="0" value="0"></div><div class="fg"><label>Cirugía pediátrica</label><input type="number" id="fcir" min="0" value="0"></div></div>
+    <div class="fr"><div class="fg"><label>Otros</label><input type="number" id="fot" min="0" value="0"></div><div class="fg"><label>Procedimientos</label><input type="number" id="fpr" min="0" value="0"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svStats('${rid}')">Guardar</button>`);
+}
+function svStats(rid){
+  const per=document.getElementById('fper').value.trim();if(!per){alert('Ingresá el período.');return;}
+  S.stats.push({id:uid(),rid,periodo:per,rot:document.getElementById('frot').value,guardia:+document.getElementById('fgu').value||0,intern:+document.getElementById('fin').value||0,cext:+document.getElementById('fce').value||0,alto:+document.getElementById('far').value||0,nac:+document.getElementById('fnac').value||0,ingneo:+document.getElementById('fingneo').value||0,ucip:+document.getElementById('fucip').value||0,cir:+document.getElementById('fcir').value||0,otros:+document.getElementById('fot').value||0,procs:+document.getElementById('fpr').value||0,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+function oCaso(rid){
+  om('Agregar Caso',`
+    <div class="fr"><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div><div class="fg"><label>Rotación</label><input id="frot" list="dl-neo"></div></div>
+    <div class="fg"><label>Diagnóstico principal</label><input id="fdiag"></div>
+    <div class="fr"><div class="fg"><label>Ámbito</label><select id="famb"><option value="internacion">Internación</option><option value="shockroom">Shock room</option><option value="consultorio">Consultorio</option><option value="neonatal">Área neonatal</option></select></div>
+    <div class="fg"><label>Complejidad</label><select id="fcompl"><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></div></div>
+    <div class="fg"><label>Competencia trabajada</label><textarea id="fcomp"></textarea></div>
+    <div class="fg"><label>Reflexión / aprendizaje</label><textarea id="frefl"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svCaso('${rid}')">Guardar</button>`);
+}
+function svCaso(rid){
+  const d=document.getElementById('fdiag').value.trim();if(!d){alert('Ingresá el diagnóstico.');return;}
+  S.casos.push({id:uid(),rid,fecha:document.getElementById('ff2').value||hoy(),rot:document.getElementById('frot').value,diag:d,amb:document.getElementById('famb').value,compl:document.getElementById('fcompl').value,comp:document.getElementById('fcomp').value,refl:document.getElementById('frefl').value});
+  save();cm();render();
+}
+
+// ===== CIENCIA =====
+function tCiencia(r){
+  const el=document.getElementById('content');
+  const rows=S.ciencia.filter(x=>x.rid===r.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const por=t=>rows.filter(x=>x.tipo===t).length;
+  el.innerHTML=`<div class="card"><div class="ch"><div><div class="ct">Producción Científica</div><div class="cs">${rows.length} registros</div></div><button class="btn bp bsm" onclick="oCiencia('${r.id}')">＋ Agregar</button></div>
+  <div class="g4" style="margin-bottom:16px">${[['Trabajos','trabajo'],['Congresos','congreso'],['Publicaciones','publicacion'],['Otros','otro']].map(([l,t])=>`<div class="stat"><div class="n">${por(t)}</div><div class="l">${l}</div></div>`).join('')}</div>
+  ${!rows.length?`<div class="empty"><div class="ei">🔬</div><p>Sin producción registrada</p></div>`:`
+  <div class="tw"><table><thead><tr><th>Tipo</th><th>Título</th><th>Evento/Revista</th><th>Ámbito</th><th>Tutor</th><th>Estado</th><th></th></tr></thead>
+  <tbody>${rows.map(x=>`<tr><td style="font-size:.75rem">${{trabajo:'📄 Trabajo',congreso:'🎤 Congreso',publicacion:'📰 Publicación',otro:'📌 Otro'}[x.tipo]||x.tipo}</td><td><strong style="font-size:.8rem">${x.titulo}</strong>${x.coautores?`<br><small style="color:var(--muted)">Con: ${x.coautores}</small>`:''}</td><td style="font-size:.75rem">${x.evento||'—'}</td><td>${x.ambito?`<span class="badge" style="background:${x.ambito==='internacional'?'#c6f6d5':x.ambito==='nacional'?'#bee3f8':'#fefcbf'};color:${x.ambito==='internacional'?'#276749':x.ambito==='nacional'?'#2c5282':'#744210'}">${x.ambito}</span>`:'—'}</td><td style="font-size:.75rem">${x.tutor||'—'}</td><td>${x.estado?`<span class="sc ${x.estado==='publicado'||x.estado==='presentado'?'sh':x.estado==='enviado'?'sbl':'sm'}">${x.estado}</span>`:'—'}</td><td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('ciencia','${x.id}')">🗑</button></td></tr>`).join('')}
+  </tbody></table></div>`}</div>`;
+}
+function oCiencia(rid){
+  om('Agregar Producción Científica',`
+    <div class="fr"><div class="fg"><label>Tipo</label><select id="ftipo"><option value="trabajo">📄 Trabajo / Ateneo</option><option value="congreso">🎤 Congreso</option><option value="publicacion">📰 Publicación</option><option value="otro">📌 Otro</option></select></div><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div></div>
+    <div class="fg"><label>Título</label><input id="ftit"></div>
+    <div class="fr"><div class="fg"><label>Evento / Revista</label><input id="fev"></div><div class="fg"><label>Ámbito</label><select id="famb"><option value="">—</option><option value="institucional">Institucional</option><option value="provincial">Provincial</option><option value="nacional">Nacional</option><option value="internacional">Internacional</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Tutor / Director</label><input id="ftutor"></div><div class="fg"><label>Coautores</label><input id="fcoa"></div></div>
+    <div class="fr"><div class="fg"><label>Estado</label><select id="fest"><option value="">—</option><option value="en_proceso">En proceso</option><option value="enviado">Enviado</option><option value="presentado">Presentado</option><option value="publicado">Publicado</option></select></div><div class="fg"><label>ISSN / DOI</label><input id="fdoi"></div></div>
+    <div class="fg"><label>Resumen</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svCiencia('${rid}')">Guardar</button>`);
+}
+function svCiencia(rid){
+  const t=document.getElementById('ftit').value.trim();if(!t){alert('Ingresá el título.');return;}
+  S.ciencia.push({id:uid(),rid,tipo:document.getElementById('ftipo').value,titulo:t,fecha:document.getElementById('ff2').value||hoy(),evento:document.getElementById('fev').value,ambito:document.getElementById('famb').value,tutor:document.getElementById('ftutor').value,coautores:document.getElementById('fcoa').value,estado:document.getElementById('fest').value,doi:document.getElementById('fdoi').value,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+
+// ===== LICENCIAS =====
+function tLicencias(r){
+  const el=document.getElementById('content');
+  const rows=S.licencias.filter(x=>x.rid===r.id).sort((a,b)=>b.desde.localeCompare(a.desde));
+  const totalDias=rows.reduce((s,x)=>{if(x.desde&&x.hasta){const d=(new Date(x.hasta)-new Date(x.desde))/(1000*60*60*24)+1;return s+(d>0?d:0);}return s;},0);
+  el.innerHTML=`<div class="card"><div class="ch"><div><div class="ct">Licencias y Ausencias</div><div class="cs">${rows.length} registros · ${totalDias} días totales</div></div><button class="btn bp bsm" onclick="oLicencia('${r.id}')">＋ Licencia</button></div>
+  <div class="g4" style="margin-bottom:14px">${[['Ordinaria','ordinaria'],['Médica','medica'],['Estudio','estudio'],['Especial','especial']].map(([l,t])=>{const dias=rows.filter(x=>x.tipo===t).reduce((s,x)=>{if(x.desde&&x.hasta){const d=(new Date(x.hasta)-new Date(x.desde))/(1000*60*60*24)+1;return s+(d>0?d:0);}return s;},0);return`<div class="stat"><div class="n">${dias}</div><div class="l">Días ${l}</div></div>`;}).join('')}</div>
+  ${!rows.length?`<div class="empty"><div class="ei">📅</div><p>Sin licencias</p></div>`:`
+  <div class="tw"><table><thead><tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Motivo</th><th>Autorizado por</th><th></th></tr></thead>
+  <tbody>${rows.map(x=>{const dias=x.desde&&x.hasta?Math.max(0,(new Date(x.hasta)-new Date(x.desde))/(1000*60*60*24)+1):0;return`<tr><td><span class="badge" style="background:${x.tipo==='ordinaria'?'#bee3f8':x.tipo==='medica'?'#fed7d7':x.tipo==='estudio'?'#c6f6d5':'#fefcbf'};color:${x.tipo==='ordinaria'?'#2c5282':x.tipo==='medica'?'#c53030':x.tipo==='estudio'?'#276749':'#744210'}">${x.tipo}</span></td><td>${fd(x.desde)}</td><td>${fd(x.hasta)}</td><td><strong>${dias}</strong></td><td style="font-size:.75rem">${x.motivo||'—'}</td><td style="font-size:.75rem">${x.autoriza||'—'}</td><td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('licencias','${x.id}')">🗑</button></td></tr>`;}).join('')}
+  </tbody></table></div>`}</div>`;
+}
+function oLicencia(rid){
+  om('Registrar Licencia',`
+    <div class="fg"><label>Tipo</label><select id="ftipo"><option value="ordinaria">🏖 Ordinaria</option><option value="medica">🏥 Médica</option><option value="estudio">📚 Por estudio / Congreso</option><option value="maternidad">👶 Maternidad / Paternidad</option><option value="especial">📌 Especial</option></select></div>
+    <div class="fr"><div class="fg"><label>Desde</label><input type="date" id="fdes" value="${hoy()}"></div><div class="fg"><label>Hasta</label><input type="date" id="fhas" value="${hoy()}"></div></div>
+    <div class="fr"><div class="fg"><label>Motivo</label><input id="fmot"></div><div class="fg"><label>Autorizado por</label><input id="faut"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svLicencia('${rid}')">Guardar</button>`);
+}
+function svLicencia(rid){
+  S.licencias.push({id:uid(),rid,tipo:document.getElementById('ftipo').value,desde:document.getElementById('fdes').value,hasta:document.getElementById('fhas').value,motivo:document.getElementById('fmot').value,autoriza:document.getElementById('faut').value,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+
+// ===== COMUNIDAD =====
+function tComunidad(r){
+  const el=document.getElementById('content');
+  const rows=S.comunidad.filter(x=>x.rid===r.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const por=t=>rows.filter(x=>x.tipo===t).length;
+  el.innerHTML=`<div class="card"><div class="ch"><div><div class="ct">Actividades a la Comunidad</div><div class="cs">${rows.length} actividades</div></div><button class="btn bp bsm" onclick="oComunidad('${r.id}')">＋ Actividad</button></div>
+  <div class="g4" style="margin-bottom:16px">${[['Charlas','charla'],['Campañas','campana'],['Docencia','docencia'],['Otros','otro']].map(([l,t])=>`<div class="stat"><div class="n">${por(t)}</div><div class="l">${l}</div></div>`).join('')}</div>
+  ${!rows.length?`<div class="empty"><div class="ei">🌍</div><p>Sin actividades</p></div>`:`
+  <div class="tw"><table><thead><tr><th>Tipo</th><th>Actividad</th><th>Fecha</th><th>Lugar</th><th>Población</th><th>Participantes</th><th>Rol</th><th></th></tr></thead>
+  <tbody>${rows.map(x=>`<tr><td style="font-size:.75rem">${{charla:'🎤 Charla',campana:'📢 Campaña',docencia:'📚 Docencia',otro:'📌 Otro'}[x.tipo]||x.tipo}</td><td><strong style="font-size:.8rem">${x.titulo}</strong></td><td>${fd(x.fecha)}</td><td style="font-size:.75rem">${x.lugar||'—'}</td><td style="font-size:.75rem">${x.poblacion||'—'}</td><td style="text-align:center">${x.npart||'—'}</td><td><span class="badge" style="background:${x.rol==='organizador'?'#c6f6d5':x.rol==='expositor'?'#bee3f8':'#fefcbf'};color:${x.rol==='organizador'?'#276749':x.rol==='expositor'?'#2c5282':'#744210'}">${x.rol||'—'}</span></td><td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('comunidad','${x.id}')">🗑</button></td></tr>`).join('')}
+  </tbody></table></div>`}</div>`;
+}
+function oComunidad(rid){
+  om('Registrar Actividad Comunitaria',`
+    <div class="fr"><div class="fg"><label>Tipo</label><select id="ftipo"><option value="charla">🎤 Charla / Taller</option><option value="campana">📢 Campaña de salud</option><option value="docencia">📚 Docencia</option><option value="otro">📌 Otro</option></select></div><div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div></div>
+    <div class="fg"><label>Nombre de la actividad</label><input id="ftit"></div>
+    <div class="fr"><div class="fg"><label>Lugar / Institución</label><input id="flug"></div><div class="fg"><label>Población destinataria</label><input id="fpob"></div></div>
+    <div class="fr"><div class="fg"><label>N° participantes</label><input type="number" id="fnp" min="0"></div><div class="fg"><label>Rol</label><select id="frol"><option value="participante">Participante</option><option value="expositor">Expositor/a</option><option value="organizador">Organizador/a</option></select></div></div>
+    <div class="fg"><label>Supervisor / Docente</label><input id="fsup"></div>
+    <div class="fg"><label>Descripción</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svComunidad('${rid}')">Guardar</button>`);
+}
+function svComunidad(rid){
+  const t=document.getElementById('ftit').value.trim();if(!t){alert('Ingresá el nombre.');return;}
+  S.comunidad.push({id:uid(),rid,tipo:document.getElementById('ftipo').value,titulo:t,fecha:document.getElementById('ff2').value||hoy(),lugar:document.getElementById('flug').value,poblacion:document.getElementById('fpob').value,npart:document.getElementById('fnp').value,rol:document.getElementById('frol').value,sup:document.getElementById('fsup').value,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+
+// ===== ATENEOS =====
+function tAteneos(r){
+  const el=document.getElementById('content');
+  const rows=S.ateneos.filter(x=>x.rid===r.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tipos={clinico:'🏥 Clínico',bibliografico:'📚 Bibliográfico',morbimortalidad:'⚠️ Morbi-mortalidad',simulacion:'🎯 Simulación',clase:'📝 Clase/Taller'};
+  const por=t=>rows.filter(x=>x.tipo===t).length;
+  el.innerHTML=`<div class="card">
+    <div class="ch"><div><div class="ct">Ateneos y Actividades Formativas</div><div class="cs">${rows.length} registros</div></div>
+    <button class="btn bp bsm" onclick="oAteneo('${r.id}')">＋ Agregar</button></div>
+    <div class="g4" style="margin-bottom:16px">
+      ${[['Clínicos','clinico'],['Bibliográficos','bibliografico'],['Morbi-mort.','morbimortalidad'],['Simulación','simulacion']].map(([l,t])=>`<div class="stat"><div class="n">${por(t)}</div><div class="l">${l}</div></div>`).join('')}
+    </div>
+    ${!rows.length?`<div class="empty"><div class="ei">📖</div><p>Sin ateneos registrados</p></div>`:`
+    <div class="tw"><table>
+      <thead><tr><th>Tipo</th><th>Fecha</th><th>Título / Tema</th><th>Docente</th><th>Rol</th><th></th></tr></thead>
+      <tbody>${rows.map(x=>`<tr>
+        <td style="font-size:.75rem">${tipos[x.tipo]||x.tipo}</td>
+        <td>${fd(x.fecha)}</td>
+        <td><strong style="font-size:.8rem">${x.titulo}</strong></td>
+        <td style="font-size:.75rem">${x.docente||'—'}</td>
+        <td><span class="badge" style="background:${x.rol==='expositor'?'#c6f6d5':'#bee3f8'};color:${x.rol==='expositor'?'#276749':'#2c5282'}">${x.rol||'asistente'}</span></td>
+        <td><button class="btn bg2 bsm" style="color:var(--red)" onclick="del('ateneos','${x.id}')">🗑</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>`;
+}
+function oAteneo(rid){
+  om('Registrar Ateneo / Actividad Formativa',`
+    <div class="fr"><div class="fg"><label>Tipo</label>
+      <select id="ftipo">
+        <option value="clinico">🏥 Ateneo clínico</option>
+        <option value="bibliografico">📚 Revisión bibliográfica</option>
+        <option value="morbimortalidad">⚠️ Ateneo morbi-mortalidad</option>
+        <option value="simulacion">🎯 Simulación clínica</option>
+        <option value="clase">📝 Clase / Taller</option>
+      </select></div>
+    <div class="fg"><label>Fecha</label><input type="date" id="ff2" value="${hoy()}"></div></div>
+    <div class="fg"><label>Título / Tema</label><input id="ftit" placeholder="Ej: Sepsis neonatal, Manejo del distrés…"></div>
+    <div class="fr"><div class="fg"><label>Docente / Disertante</label><input id="fdocente"></div>
+    <div class="fg"><label>Rol del residente</label>
+      <select id="frol"><option value="asistente">Asistente</option><option value="expositor">Expositor/a</option><option value="coordinador">Coordinador/a</option></select></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svAteneo('${rid}')">Guardar</button>`);
+}
+function svAteneo(rid){
+  const t=document.getElementById('ftit').value.trim();if(!t){alert('Ingresá el título.');return;}
+  S.ateneos.push({id:uid(),rid,tipo:document.getElementById('ftipo').value,titulo:t,fecha:document.getElementById('ff2').value||hoy(),docente:document.getElementById('fdocente').value,rol:document.getElementById('frol').value,obs:document.getElementById('fobs').value});
+  save();cm();render();
+}
+
+// ===== REPORTE =====
+function tRep(r){
+  const el=document.getElementById('content');
+  const now=new Date();
+  const yearOpts=[now.getFullYear(),now.getFullYear()-1,now.getFullYear()-2];
+  const selCard=`<div class="card" style="margin-bottom:14px;padding:12px 16px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase">Tipo de informe:</span>
+      <div class="subtabs" style="margin:0">
+        <button class="stab${repMode==='semestral'?' act':''}" onclick="repMode='semestral';tRep(aR())">📅 Semestral</button>
+        <button class="stab${repMode==='anual'?' act':''}" onclick="repMode='anual';tRep(aR())">📆 Anual</button>
+        <button class="stab${repMode==='global'?' act':''}" onclick="repMode='global';tRep(aR())">🗂 Global</button>
+      </div>
+      ${repMode!=='global'?`<select onchange="repYear=parseInt(this.value);tRep(aR())" style="padding:5px 8px;border-radius:6px;border:1px solid var(--brd);font-size:.78rem;width:auto">${yearOpts.map(y=>`<option value="${y}"${repYear===y?' selected':''}>${y}</option>`).join('')}</select>`:''}
+      ${repMode==='semestral'?`<div class="subtabs" style="margin:0"><button class="stab${repSem===1?' act':''}" onclick="repSem=1;tRep(aR())">1° Semestre</button><button class="stab${repSem===2?' act':''}" onclick="repSem=2;tRep(aR())">2° Semestre</button></div>`:''}
+      <span style="font-size:.74rem;color:var(--pri);font-weight:700">${repMode==='global'?'📋 Todos los datos':repMode==='anual'?`📆 Jun ${repYear} – May ${repYear+1}`:`📅 ${repSem===1?'1°':'2°'} Sem. ${repYear}`}</span>
+    </div>
+  </div>`;
+  const ev=fpd(S.evals.filter(e=>e.rid===r.id),'fecha'),pr=fpd(S.procs.filter(p=>p.rid===r.id),'fecha');
+  const gu=fpd(S.guardias.filter(g=>g.rid===r.id),'fecha'),ca=fpd(S.casos.filter(x=>x.rid===r.id),'fecha');
+  const ro=fpd(S.rots.filter(x=>x.rid===r.id),'fi'),sts=S.stats.filter(x=>x.rid===r.id);
+  const ci=fpd(S.ciencia.filter(x=>x.rid===r.id),'fecha'),lic=fpd(S.licencias.filter(x=>x.rid===r.id),'desde');
+  const com=fpd(S.comunidad.filter(x=>x.rid===r.id),'fecha');
+  const pnc={},ppc={};pr.forEach(p=>{if(PNEO.includes(p.tipo))pnc[p.tipo]=(pnc[p.tipo]||0)+1;if(PPED.includes(p.tipo))ppc[p.tipo]=(ppc[p.tipo]||0)+1;});
+  const doneN=PNEO.filter(p=>pnc[p]).length,doneP=PPED.filter(p=>ppc[p]).length;
+  const sc2=t=>ev.filter(e=>e.tipo===t&&e.score!=null).map(e=>e.score);
+  const sem=repSem===1?'1°':'2°';
+  const PL=repMode==='global'?'Global':repMode==='anual'?`Jun ${repYear} – May ${repYear+1}`:`${sem} Semestre ${repYear}`;
+  const totG=sts.reduce((s,x)=>s+(+x.guardia||0),0),totI=sts.reduce((s,x)=>s+(+x.intern||0),0),totC=sts.reduce((s,x)=>s+(+x.cext||0),0),totAR=sts.reduce((s,x)=>s+(+x.alto||0),0);
+  function sRow(lbl,scores){if(!scores.length)return`<tr><td>${lbl}</td><td colspan="3" style="color:var(--muted);font-size:.78rem">Sin datos</td></tr>`;return`<tr><td>${lbl}</td><td>${scores.length}</td><td><span class="sc ${scl(avg(scores))}">${avg(scores).toFixed(1)}/10</span></td><td style="font-size:.74rem;color:var(--muted)">${Math.min(...scores).toFixed(1)}–${Math.max(...scores).toFixed(1)}</td></tr>`;}
+  el.innerHTML=selCard+`<div class="card">
+    <div class="rh">
+      <div style="font-size:.7rem;opacity:.75;text-transform:uppercase;letter-spacing:.1em">Sanatorio 9 de Julio S.A. · Residencia Neo-Pediátrica</div>
+      <div style="font-size:1.25rem;font-weight:800;margin:5px 0">Informe de Desempeño · ${PL}</div>
+      <div style="font-size:.82rem;opacity:.9">${r.apellido}, ${r.nombre} · ${r.anio}</div>
+      <div style="font-size:.7rem;opacity:.65;margin-top:5px">Generado: ${fd(hoy())} · Dra. Castillo Lucena / Dra. Mortarotti</div>
+    </div>
+    <div class="sd">1. Identificación</div>
+    <div class="g2" style="font-size:.82rem;margin-bottom:10px">${[['Apellido y Nombre',`${r.apellido}, ${r.nombre}`],['Matrícula',r.matricula||'—'],['Año',r.anio],['Tutor',r.tutor||'—'],['Ingreso',fd(r.fechaIng)],['Universidad',r.uni||'—']].map(([l,v])=>`<div><strong>${l}:</strong> ${v}</div>`).join('')}</div>
+    <div class="sd">2. Rotaciones</div>
+    ${!ro.length?'<p style="color:var(--muted);font-size:.8rem">Sin registros.</p>':`<div class="tw"><table><thead><tr><th>Categoría</th><th>Rotación</th><th>Docente</th><th>Inicio</th><th>Fin</th><th>Desempeño</th><th>Estado</th></tr></thead><tbody>${ro.map(x=>{const vs=Object.values(x.comps||{}).filter(Boolean);const gbl=vs.length?(ROT_LBL[String(Math.round(avg(vs)))]||'—'):'Sin calificar';return`<tr><td><span class="badge ${CAT_CSS[x.categoria]||'cat-otras'}">${CAT_LBL[x.categoria]||'—'}</span></td><td>${x.serv==='Otras'?(x.otraDesc||'Otras'):x.serv}</td><td style="font-size:.75rem">${x.docente||'—'}</td><td>${fd(x.fi)}</td><td>${x.ff?fd(x.ff):'—'}</td><td>${gbl}</td><td>${x.apr===true?'<span class="badge" style="background:#c6f6d5;color:#276749">Aprobada</span>':x.apr===false?'<span class="badge" style="background:#fed7d7;color:#c53030">No aprobada</span>':'<span class="badge" style="background:#e2e8f0;color:#718096">Pendiente</span>'}</td></tr>`;}).join('')}</tbody></table></div>`}
+    <div class="sd">3. Evaluaciones</div>
+    <div class="tw"><table><thead><tr><th>Instrumento</th><th>N°</th><th>Promedio</th><th>Rango</th></tr></thead><tbody>${sRow('Simulación clínica',sc2('simulacion'))}${sRow('Examen teórico',sc2('teorico'))}${sRow('Pase de sala',sc2('paseSala'))}${sRow('Auditoría HC',sc2('auditoria'))}</tbody></table></div>
+    <div class="sd">4. Actividad Asistencial</div>
+    <div class="g4" style="margin-bottom:12px">${[['Guardia',totG],['Internación',totI],['Consultorio',totC],['Alto riesgo',totAR]].map(([l,n])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('')}</div>
+    <div class="sd">5. Procedimientos — Neonatología (${Math.round(doneN/PNEO.length*100)}%)</div>
+    <div class="pw" style="margin-bottom:12px"><div class="pb pb-neo" style="width:${Math.round(doneN/PNEO.length*100)}%"></div></div>
+    <div class="g2" style="font-size:.77rem;margin-bottom:16px">${PNEO.map(p=>`<div style="padding:4px 0;border-bottom:1px solid var(--brd)">${pnc[p]?'✅':'⬜'} ${p}${pnc[p]?` <span style="color:var(--muted)">(${pnc[p]})</span>`:''}</div>`).join('')}</div>
+    <div class="sd">6. Procedimientos — Pediatría (${Math.round(doneP/PPED.length*100)}%)</div>
+    <div class="pw" style="margin-bottom:12px"><div class="pb pb-pri" style="width:${Math.round(doneP/PPED.length*100)}%"></div></div>
+    <div class="g2" style="font-size:.77rem;margin-bottom:16px">${PPED.map(p=>`<div style="padding:4px 0;border-bottom:1px solid var(--brd)">${ppc[p]?'✅':'⬜'} ${p}${ppc[p]?` <span style="color:var(--muted)">(${ppc[p]})</span>`:''}</div>`).join('')}</div>
+    ${ci.length?`<div class="sd">8. Producción Científica</div><div class="tw"><table><thead><tr><th>Tipo</th><th>Título</th><th>Evento</th><th>Ámbito</th><th>Estado</th></tr></thead><tbody>${ci.map(x=>`<tr><td style="font-size:.75rem">${{trabajo:'Trabajo',congreso:'Congreso',publicacion:'Publicación',otro:'Otro'}[x.tipo]||x.tipo}</td><td><strong>${x.titulo}</strong></td><td>${x.evento||'—'}</td><td>${x.ambito||'—'}</td><td>${x.estado||'—'}</td></tr>`).join('')}</tbody></table></div>`:''}
+    ${lic.length?`<div class="sd">9. Licencias</div><div class="tw"><table><thead><tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Motivo</th></tr></thead><tbody>${lic.map(x=>{const dias=x.desde&&x.hasta?Math.max(0,(new Date(x.hasta)-new Date(x.desde))/(1000*60*60*24)+1):0;return`<tr><td>${x.tipo}</td><td>${fd(x.desde)}</td><td>${fd(x.hasta)}</td><td><strong>${dias}</strong></td><td>${x.motivo||'—'}</td></tr>`;}).join('')}</tbody></table></div>`:''}
+    ${com.length?`<div class="sd">10. Actividades Comunitarias</div><div class="tw"><table><thead><tr><th>Actividad</th><th>Fecha</th><th>Lugar</th><th>Rol</th></tr></thead><tbody>${com.map(x=>`<tr><td><strong>${x.titulo}</strong></td><td>${fd(x.fecha)}</td><td>${x.lugar||'—'}</td><td>${x.rol||'—'}</td></tr>`).join('')}</tbody></table></div>`:''}
+    <div class="sd">11. Observaciones y Plan</div>
+    <div style="background:var(--bg);border:1px solid var(--brd);border-radius:6px;padding:14px;font-size:.82rem;min-height:70px">${r.obs||'Sin observaciones.'}</div>
+    <div class="sd">12. Firmas</div>
+    <div class="g3" style="margin-top:18px;gap:24px">${['Residente','Docente / Instructora','Dirección de Residencia'].map(f=>`<div style="text-align:center"><div style="border-bottom:1px solid var(--txt);padding-bottom:28px;margin-bottom:7px"></div><div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">${f}</div></div>`).join('')}</div>
+    <div style="margin-top:20px;text-align:right"><button class="btn bp" onclick="imprimirReporte()">🖨 Abrir para imprimir / PDF</button></div>
+  </div>`;
+}
+
+// ===== IMPRIMIR =====
+function imprimirReporte(){
+  const r=aR();if(!r)return;
+  const ev=fpd(S.evals.filter(e=>e.rid===r.id),'fecha'),pr=fpd(S.procs.filter(p=>p.rid===r.id),'fecha');
+  const gu=fpd(S.guardias.filter(g=>g.rid===r.id),'fecha'),ro=fpd(S.rots.filter(x=>x.rid===r.id),'fi');
+  const ci=fpd(S.ciencia.filter(x=>x.rid===r.id),'fecha'),lic=fpd(S.licencias.filter(x=>x.rid===r.id),'desde');
+  const com=fpd(S.comunidad.filter(x=>x.rid===r.id),'fecha'),sts=S.stats.filter(x=>x.rid===r.id);
+  const pnc={},ppc={};pr.forEach(p=>{if(PNEO.includes(p.tipo))pnc[p.tipo]=(pnc[p.tipo]||0)+1;if(PPED.includes(p.tipo))ppc[p.tipo]=(ppc[p.tipo]||0)+1;});
+  const doneN=PNEO.filter(p=>pnc[p]).length,doneP=PPED.filter(p=>ppc[p]).length;
+  const sc2=t=>ev.filter(e=>e.tipo===t&&e.score!=null).map(e=>e.score);
+  const sem=repSem===1?'1°':'2°';
+  const PL=repMode==='global'?'Global':repMode==='anual'?`Jun ${repYear} – May ${repYear+1}`:`${sem} Semestre ${repYear}`;
+  const totG=sts.reduce((s,x)=>s+(+x.guardia||0),0),totI=sts.reduce((s,x)=>s+(+x.intern||0),0),totC=sts.reduce((s,x)=>s+(+x.cext||0),0),totAR=sts.reduce((s,x)=>s+(+x.alto||0),0);
+  const fdp=d=>{if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;};
+  function sR(lbl,scores){if(!scores.length)return`<tr><td>${lbl}</td><td colspan="3" style="color:#999">Sin datos</td></tr>`;return`<tr><td>${lbl}</td><td style="text-align:center">${scores.length}</td><td style="text-align:center;font-weight:700">${avg(scores).toFixed(1)}/10</td><td style="color:#718096">${Math.min(...scores).toFixed(1)} – ${Math.max(...scores).toFixed(1)}</td></tr>`;}
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Informe ${PL} — ${r.apellido}, ${r.nombre}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#1a202c;padding:24px;max-width:900px;margin:0 auto}.hdr{background:linear-gradient(135deg,#2c5282,#276749);color:#fff;padding:18px 22px;border-radius:7px;margin-bottom:18px}.hdr .inst{font-size:8.5px;opacity:.7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}.hdr .tit{font-size:17px;font-weight:800;margin-bottom:3px}.hdr .sub{font-size:11px;opacity:.88}.hdr .gen{font-size:8.5px;opacity:.6;margin-top:5px}h2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#2c5282;border-bottom:2px solid #bee3f8;padding-bottom:4px;margin:18px 0 9px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;font-size:10.5px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}.sb{background:#f0f4f8;border-radius:5px;padding:9px;text-align:center;border-left:3px solid #4299e1}.sb .n{font-size:19px;font-weight:800;color:#2c5282;line-height:1.1}.sb .l{font-size:8px;color:#718096;text-transform:uppercase;margin-top:2px}table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10px}th{padding:5px 7px;background:#edf2f7;border-bottom:2px solid #cbd5e0;text-align:left;font-size:8.5px;text-transform:uppercase;color:#718096}td{padding:5px 7px;border-bottom:1px solid #e2e8f0;vertical-align:top}tr:last-child td{border-bottom:none}.bv{display:inline-block;padding:1px 7px;border-radius:20px;font-size:8.5px;font-weight:700;background:#c6f6d5;color:#276749}.ba{display:inline-block;padding:1px 7px;border-radius:20px;font-size:8.5px;font-weight:700;background:#bee3f8;color:#2c5282}.bg{display:inline-block;padding:1px 7px;border-radius:20px;font-size:8.5px;font-weight:700;background:#e2e8f0;color:#4a5568}.br_{display:inline-block;padding:1px 7px;border-radius:20px;font-size:8.5px;font-weight:700;background:#fed7d7;color:#c53030}.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px}.pi{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f0f0f0;font-size:10px}.firmas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:32px}.fln{border-bottom:1px solid #1a202c;padding-bottom:24px;margin-bottom:5px}.flb{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#718096;text-align:center}.obs{background:#f7fafc;padding:8px;border-radius:4px;border-left:3px solid #4299e1;margin-bottom:12px;font-size:10px}@media print{@page{size:A4;margin:1.5cm}body{padding:0}}</style></head><body>
+<div class="hdr"><div class="inst">Sanatorio 9 de Julio S.A. · Residencia Neo-Pediátrica · San Miguel de Tucumán</div><div class="tit">Informe de Desempeño · ${PL}</div><div class="sub">${r.apellido}, ${r.nombre} · ${r.anio}</div><div class="gen">Generado: ${fdp(hoy())} · Dra. P.G. Castillo Lucena / Dra. N.P. Mortarotti</div></div>
+<h2>1. Identificación</h2><div class="g2">${[['Apellido y Nombre',`<strong>${r.apellido}, ${r.nombre}</strong>`],['Matrícula',r.matricula||'—'],['Año de residencia',r.anio],['Tutor / Instructora',r.tutor||'—'],['Fecha de ingreso',fdp(r.fechaIng)],['Universidad',r.uni||'—']].map(([l,v])=>`<div><strong style="color:#718096;font-size:8.5px;text-transform:uppercase">${l}:</strong> ${v}</div>`).join('')}</div>
+${r.obs?`<div class="obs"><strong>Observaciones:</strong> ${r.obs}</div>`:''}
+<h2>2. Rotaciones</h2>${ro.length?`<table><thead><tr><th>Cat.</th><th>Rotación</th><th>Docente</th><th>Inicio</th><th>Fin</th><th>Desempeño</th><th>Estado</th></tr></thead><tbody>${ro.map(x=>{const vs=Object.values(x.comps||{}).filter(Boolean);const gbl=vs.length?(ROT_LBL[String(Math.round(avg(vs)))]||'—'):'Sin calificar';return`<tr><td><span class="${x.categoria==='neo'?'bv':x.categoria==='ped'?'ba':'bg'}">${CAT_LBL[x.categoria]||'—'}</span></td><td><strong>${x.serv==='Otras'?(x.otraDesc||'Otras'):x.serv}</strong></td><td>${x.docente||'—'}</td><td>${fdp(x.fi)}</td><td>${x.ff?fdp(x.ff):'en curso'}</td><td>${gbl}</td><td>${x.apr===true?'<span class="bv">Aprobada</span>':x.apr===false?'<span class="br_">No aprobada</span>':'<span class="bg">Pendiente</span>'}</td></tr>`;}).join('')}</tbody></table>`:'<p style="color:#999">Sin rotaciones.</p>'}
+<h2>3. Evaluaciones</h2><table><thead><tr><th>Instrumento</th><th style="text-align:center">N°</th><th style="text-align:center">Promedio</th><th>Rango</th></tr></thead><tbody>${sR('Simulación clínica',sc2('simulacion'))}${sR('Examen teórico',sc2('teorico'))}${sR('Pase de sala',sc2('paseSala'))}${sR('Auditoría HC',sc2('auditoria'))}</tbody></table>
+<h2>4. Actividad Asistencial</h2><div class="g4"><div class="sb"><div class="n">${gu.length}</div><div class="l">Guardias</div></div><div class="sb"><div class="n">${totG}</div><div class="l">Consultas guardia</div></div><div class="sb"><div class="n">${totI}</div><div class="l">Internación</div></div><div class="sb"><div class="n">${totC+totAR}</div><div class="l">Consultorio</div></div></div>
+<h2>5. Procedimientos Neonatología (${Math.round(doneN/PNEO.length*100)}%)</h2><div class="pgrid">${PNEO.map(p=>`<div class="pi">${pnc[p]?'✅':'☐'} <span style="${pnc[p]?'':'color:#aaa'}">${p}</span>${pnc[p]?` <span style="color:#718096">(${pnc[p]})</span>`:''}</div>`).join('')}</div>
+<h2>6. Procedimientos Pediatría (${Math.round(doneP/PPED.length*100)}%)</h2><div class="pgrid">${PPED.map(p=>`<div class="pi">${ppc[p]?'✅':'☐'} <span style="${ppc[p]?'':'color:#aaa'}">${p}</span>${ppc[p]?` <span style="color:#718096">(${ppc[p]})</span>`:''}</div>`).join('')}</div>
+${ci.length?`<h2>8. Producción Científica</h2><table><thead><tr><th>Tipo</th><th>Título</th><th>Evento/Revista</th><th>Ámbito</th><th>Estado</th></tr></thead><tbody>${ci.map(x=>`<tr><td>${{trabajo:'Trabajo',congreso:'Congreso',publicacion:'Publicación',otro:'Otro'}[x.tipo]||x.tipo}</td><td><strong>${x.titulo}</strong></td><td>${x.evento||'—'}</td><td>${x.ambito||'—'}</td><td>${x.estado||'—'}</td></tr>`).join('')}</tbody></table>`:''}
+${lic.length?`<h2>9. Licencias</h2><table><thead><tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Motivo</th></tr></thead><tbody>${lic.map(x=>{const dias=x.desde&&x.hasta?Math.max(0,(new Date(x.hasta)-new Date(x.desde))/(1000*60*60*24)+1):0;return`<tr><td>${x.tipo}</td><td>${fdp(x.desde)}</td><td>${fdp(x.hasta)}</td><td><strong>${dias}</strong></td><td>${x.motivo||'—'}</td></tr>`;}).join('')}</tbody></table>`:''}
+${com.length?`<h2>10. Actividades Comunitarias</h2><table><thead><tr><th>Actividad</th><th>Fecha</th><th>Lugar</th><th>Rol</th></tr></thead><tbody>${com.map(x=>`<tr><td><strong>${x.titulo}</strong></td><td>${fdp(x.fecha)}</td><td>${x.lugar||'—'}</td><td>${x.rol||'—'}</td></tr>`).join('')}</tbody></table>`:''}
+<h2 style="margin-top:28px">Firmas y Conformidad</h2><div class="firmas">${['Residente','Docente / Instructora','Dirección de Residencia'].map(f=>`<div><div class="fln"></div><div class="flb">${f}</div></div>`).join('')}</div>
+<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>
+</body></html>`;
+  const win=window.open('','_blank','width=960,height=720,scrollbars=yes');
+  if(win){win.document.write(html);win.document.close();}
+  else alert('Permitir ventanas emergentes e intentar de nuevo.');
+}
+
+// ===== MODALS =====
+function om(title,body,footer){
+  document.getElementById('mc').innerHTML=`<div class="mh"><div class="mt">${title}</div><button class="mx" onclick="cm()">✕</button></div>${body}<div class="mf">${footer}</div>`;
+  document.getElementById('mo').classList.add('open');
+}
+function cm(){document.getElementById('mo').classList.remove('open');}
+document.getElementById('mo').addEventListener('click',e=>{if(e.target===document.getElementById('mo'))cm();});
+
+// ===== RESIDENTES =====
+function oAddR(){
+  om('Agregar Residente',`
+    <div class="fr"><div class="fg"><label>Nombre</label><input id="fn" placeholder="María"></div><div class="fg"><label>Apellido</label><input id="fa" placeholder="González"></div></div>
+    <div class="fr"><div class="fg"><label>Año</label><select id="fano">${ANOS.map((a,i)=>`<option value="${i+1}">${a}</option>`).join('')}</select></div><div class="fg"><label>Matrícula profesional</label><input id="fmat"></div></div>
+    <div class="fr"><div class="fg"><label>Fecha de ingreso</label><input type="date" id="fi2" value="${hoy()}"></div><div class="fg"><label>DNI</label><input id="fd"></div></div>
+    <div class="fr"><div class="fg"><label>Email</label><input id="fem"></div><div class="fg"><label>Teléfono</label><input id="ft"></div></div>
+    <div class="fr"><div class="fg"><label>Universidad</label><input id="fu"></div><div class="fg"><label>Tutor / Instructora</label><input id="ftu" placeholder="Dra. Ciotola"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fo"></textarea></div>`,
+    `<button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svR()">Guardar</button>`);
+}
+function oEditR(id){
+  const r=gR(id);if(!r)return;
+  om('Editar Residente',`<input type="hidden" id="fid" value="${id}">
+    <div class="fr"><div class="fg"><label>Nombre</label><input id="fn" value="${r.nombre}"></div><div class="fg"><label>Apellido</label><input id="fa" value="${r.apellido}"></div></div>
+    <div class="fr"><div class="fg"><label>Año</label><select id="fano">${ANOS.map((a,i)=>`<option value="${i+1}"${r.anio===a?' selected':''}>${a}</option>`).join('')}</select></div><div class="fg"><label>Matrícula</label><input id="fmat" value="${r.matricula||''}"></div></div>
+    <div class="fr"><div class="fg"><label>Fecha ingreso</label><input type="date" id="fi2" value="${r.fechaIng}"></div><div class="fg"><label>DNI</label><input id="fd" value="${r.dni||''}"></div></div>
+    <div class="fr"><div class="fg"><label>Email</label><input id="fem" value="${r.email||''}"></div><div class="fg"><label>Teléfono</label><input id="ft" value="${r.tel||''}"></div></div>
+    <div class="fr"><div class="fg"><label>Universidad</label><input id="fu" value="${r.uni||''}"></div><div class="fg"><label>Tutor</label><input id="ftu" value="${r.tutor||''}"></div></div>
+    <div class="fg"><label>Observaciones</label><textarea id="fo">${r.obs||''}</textarea></div>`,
+    `<button class="btn br bsm" onclick="delR('${id}')">Eliminar</button><button class="btn bg2" onclick="cm()">Cancelar</button><button class="btn bp" onclick="svR('${id}')">Guardar</button>`);
+}
+function svR(id){
+  const n=document.getElementById('fn')?.value?.trim(),a=document.getElementById('fa')?.value?.trim();
+  if(!n||!a){alert('Nombre y apellido requeridos.');return;}
+  const d={nombre:n,apellido:a,anio:ANOS[parseInt(document.getElementById('fano').value)-1],matricula:document.getElementById('fmat')?.value||'',fechaIng:document.getElementById('fi2').value||hoy(),dni:document.getElementById('fd')?.value||'',email:document.getElementById('fem')?.value||'',tel:document.getElementById('ft')?.value||'',uni:document.getElementById('fu')?.value||'',tutor:document.getElementById('ftu')?.value||'',obs:document.getElementById('fo')?.value||''};
+  if(id){const i=S.residents.findIndex(r=>r.id===id);if(i>=0)S.residents[i]={...S.residents[i],...d};}
+  else{const r={id:uid(),...d};S.residents.push(r);S.rid=r.id;}
+  save();cm();render();
+}
+function delR(id){
+  if(!confirm('¿Eliminar residente y todos sus datos?'))return;
+  COLLS.forEach(k=>{S[k]=k==='residents'?S[k].filter(r=>r.id!==id):S[k].filter(x=>x.rid!==id);});
+  if(S.rid===id)S.rid=S.residents[0]?.id||null;
+  save();cm();render();
+}
+
+// ===== RUBRICA =====
+function rubricaHTML(prefijo,vals={}){
+  return`<div>${RCOMP.map((d,i)=>`<div class="rubric-row"><span class="rlab">${d}</span><div class="rbts">${RNIVS.map((n,j)=>{const v=j+1;return`<button type="button" class="rbt${vals[i+1]===v?' sel-'+v:''}" id="rb_${prefijo}_${i+1}_${v}" onclick="srub('${prefijo}',${i+1},${v})">${n}</button>`;}).join('')}</div></div>`).join('')}</div>`;
+}
+window._RUBS={};
+function srub(pre,dom,val){
+  if(!window._RUBS[pre])window._RUBS[pre]={};window._RUBS[pre][dom]=val;
+  RNIVS.forEach((_,j)=>{const b=document.getElementById(`rb_${pre}_${dom}_${j+1}`);if(b)b.className='rbt';});
+  const b=document.getElementById(`rb_${pre}_${dom}_${val}`);if(b)b.classList.add(`sel-${val}`);
+}
+
+function del(col,id){if(!confirm('¿Eliminar?'))return;S[col]=S[col].filter(x=>x.id!==id);save();render();}
+
+// ===== INICIO =====
+const savedFbCfg=localStorage.getItem('fb_config');
+if(IS_AS){
+  load();
+}else if(savedFbCfg){
+  try{initFirebase(JSON.parse(savedFbCfg));load();}catch(e){console.error(e);setTimeout(oSettings,500);}
+}else{
+  setTimeout(oSettings,800);
+}
+</script>
+</body>
+</html>
