@@ -322,7 +322,7 @@ function genResidenteLink(rid){
 // ===== PERFIL =====
 function tPerfil(r){
   const el=document.getElementById('content');
-  if(!r){el.innerHTML=`<div class="card"><div class="empty"><div class="ei">🏥</div><p style="font-weight:700;margin-bottom:8px">Bienvenido al Sistema de Seguimiento</p><p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Residencia Neo-Pediátrica · Sanatorio 9 de Julio</p>${!db&&!IS_AS?'<p style="color:var(--red);font-size:.82rem;margin-bottom:12px">⚠️ Configurá Firebase para guardar datos</p>':''}<button class="btn bp" onclick="${!db&&!IS_AS?'oSettings':'oAddR'}()">'+(!db&&!IS_AS?'🔥 Configurar Firebase':'＋ Primer residente')+`</button></div></div>`;return;}
+  if(!r){el.innerHTML=`<div class="card"><div class="empty"><div class="ei">🏥</div><p style="font-weight:700;margin-bottom:8px">Bienvenido al Sistema de Seguimiento</p><p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Residencia Neo-Pediátrica · Sanatorio 9 de Julio</p><button class="btn bp" onclick="oAddR()">＋ Primer residente</button></div></div>`;return;}
   const ev=S.evals.filter(e=>e.rid===r.id),pr=S.procs.filter(p=>p.rid===r.id),gu=S.guardias.filter(g=>g.rid===r.id),ca=S.casos.filter(x=>x.rid===r.id);
   const pnc={},ppc={};pr.forEach(p=>{if(PNEO.includes(p.tipo))pnc[p.tipo]=(pnc[p.tipo]||0)+1;if(PPED.includes(p.tipo))ppc[p.tipo]=(ppc[p.tipo]||0)+1;});
   const doneN=PNEO.filter(p=>pnc[p]).length,doneP=PPED.filter(p=>ppc[p]).length;
