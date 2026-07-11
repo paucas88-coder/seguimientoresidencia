@@ -297,7 +297,9 @@ function rSel(){
   el.innerHTML=`<select onchange="selR(this.value)" style="min-width:190px;border:1px solid var(--brd);border-radius:6px;padding:6px 9px;font-size:.8rem;background:var(--wht)">
     <option value="">— Seleccionar residente —</option>
     ${S.residents.map(x=>`<option value="${x.id}"${x.id===S.rid?' selected':''}>${x.apellido}, ${x.nombre} · ${x.anio}</option>`).join('')}
-  </select><button class="btn bg2 bsm" onclick="oAddR()">＋ Residente</button>`;
+  </select>
+  ${S.rid?`<button class="btn bg2 bsm" onclick="genResidenteLink('${S.rid}')" title="Generar link para el residente">🔗 Link</button>`:''}
+  <button class="btn bg2 bsm" onclick="oAddR()">＋ Residente</button>`;
 }
 function rTabs(){
   document.querySelectorAll('.tab').forEach(t=>{const tab=t.getAttribute('onclick').match(/'(\w+)'/)[1];t.className='tab'+(tab===S.tab?' act':'');});
@@ -312,11 +314,10 @@ function rContent(){
 
 function genResidenteLink(rid){
   const cfg=localStorage.getItem('fb_config');
-  if(!cfg){alert('Conectá Firebase primero para generar el link.');return;}
+  if(!cfg){alert('Firebase no conectado.');return;}
   const base=window.location.href.split('/').slice(0,-1).join('/')+'/residente.html';
   const link=`${base}?rid=${rid}#${btoa(cfg)}`;
-  if(navigator.clipboard){navigator.clipboard.writeText(link).then(()=>alert('✅ Link copiado al portapapeles!\n\nEnviáselo al residente por WhatsApp o email.'));}
-  else prompt('Copiá este link y enviáselo:',link);
+  prompt('📋 Seleccioná todo (Ctrl+A) y copiá este link para enviárselo al residente:',link);
 }
 
 // ===== PERFIL =====
