@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Portal Residente · Neo-Pediátrica</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--pri:#2c5282;--pri-bg:#ebf8ff;--neo:#276749;--neo-bg:#f0fff4;--txt:#2d3748;--muted:#718096;--brd:#e2e8f0;--bg:#f7fafc;--wht:#fff;--red:#e53e3e}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:80px}
+.hdr{background:linear-gradient(135deg,var(--pri),var(--neo));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hdr h1{font-size:.95rem;font-weight:800}
+.hdr .sub{font-size:.72rem;opacity:.8;margin-top:2px}
+.hdr .sts{font-size:.66rem;opacity:.6;margin-top:1px}
+.content{padding:12px;max-width:500px;margin:0 auto}
+.card{background:var(--wht);border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
+.ctitle{font-size:.8rem;font-weight:700;color:var(--pri);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--wht);border-top:1px solid var(--brd);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:20;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.nb{flex:1;border:none;background:none;cursor:pointer;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.62rem;color:var(--muted);transition:color .15s;font-family:inherit}
+.nb .ic{font-size:1.4rem;line-height:1}
+.nb.act{color:var(--pri)}
+.sr{display:flex;gap:8px;margin-bottom:14px}
+.sb{flex:1;background:var(--pri-bg);border-radius:10px;padding:10px 8px;text-align:center;border-left:3px solid var(--pri)}
+.sb .n{font-size:1.5rem;font-weight:800;color:var(--pri);line-height:1}
+.sb .l{font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.fg{margin-bottom:12px}
+label{display:block;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+input,select,textarea{width:100%;border:1.5px solid var(--brd);border-radius:8px;padding:10px;font-size:.9rem;background:var(--wht);font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
+textarea{min-height:60px;resize:none}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:10px;border:none;cursor:pointer;font-size:.88rem;font-weight:700;font-family:inherit;transition:opacity .15s;width:100%}
+.btn:active{opacity:.8}
+.bp{background:var(--pri);color:#fff}
+.bg2{background:var(--bg);color:var(--txt);border:1.5px solid var(--brd)}
+.br2{background:var(--red);color:#fff}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-nav button{background:var(--bg);border:1.5px solid var(--brd);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.8rem;font-weight:600}
+.cal-nav .mn{font-weight:700;font-size:.88rem;text-transform:capitalize}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-hdr div{text-align:center;font-size:.6rem;font-weight:700;color:var(--muted);padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cd{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;border:1.5px solid var(--brd);background:var(--bg);font-size:.82rem;font-weight:500;user-select:none}
+.cd:active{opacity:.7;transform:scale(.95)}
+.cd.g{background:var(--pri-bg);border-color:var(--pri);color:var(--pri);font-weight:700}
+.cd.gf{background:#fefcbf;border-color:#d69e2e;color:#744210;font-weight:700}
+.cd.today{border-width:2.5px;border-color:var(--pri)}
+.cd .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8}
+.pi{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--brd);gap:10px;font-size:.83rem}
+.pi:last-child{border-bottom:none}
+.pcnt{margin-left:auto;min-width:28px;text-align:center;background:var(--pri);color:#fff;border-radius:20px;padding:3px 8px;font-size:.72rem;font-weight:800;cursor:pointer;flex-shrink:0}
+.pcnt.z{background:var(--bg);color:var(--muted);border:1.5px solid var(--brd)}
+.ri{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd);gap:10px;font-size:.82rem}
+.ri:last-child{border-bottom:none}
+.ri .meta{font-size:.7rem;color:var(--muted);margin-top:2px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#276749;color:#fff;padding:10px 20px;border-radius:20px;font-size:.82rem;font-weight:700;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.mo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:50;align-items:flex-end;justify-content:center}
+.mo.open{display:flex}
+.mc{background:var(--wht);border-radius:16px 16px 0 0;padding:20px;width:100%;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mt{font-size:.95rem;font-weight:700}
+.mx{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);padding:4px;line-height:1}
+.mf{margin-top:14px}
+.hoy-sec{background:var(--neo-bg);border-radius:10px;padding:12px;margin-bottom:12px;border-left:3px solid var(--neo)}
+.hoy-title{font-size:.7rem;font-weight:700;color:var(--neo);text-transform:uppercase;margin-bottom:8px}
+.empty-msg{text-align:center;color:var(--muted);padding:20px;font-size:.85rem}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.68rem;font-weight:700}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1 id="hdrName">Cargando…</h1>
+  <div class="sub" id="hdrSub">Residencia Neo-Pediátrica · Sanatorio 9 de Julio</div>
+  <div class="sts" id="hdrSts"></div>
+</div>
+<div class="content" id="content">
+  <div class="card" style="text-align:center;padding:30px">
+    <div style="font-size:2rem;margin-bottom:8px">⏳</div><p>Iniciando…</p>
+  </div>
+</div>
+<div class="bnav" id="bnav" style="display:none">
+  <button class="nb act" id="tab-guardias" onclick="setTab('guardias')"><span class="ic">🌙</span>Guardias</button>
+  <button class="nb" id="tab-procs" onclick="setTab('procs')"><span class="ic">🏥</span>Procedimientos</button>
+  <button class="nb" id="tab-ateneos" onclick="setTab('ateneos')"><span class="ic">📖</span>Ateneos</button>
+  <button class="nb" id="tab-casos" onclick="setTab('casos')"><span class="ic">📋</span>Casos</button>
+</div>
+<div class="mo" id="mo"><div class="mc" id="mc"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATOS =====
+const PNEO=['Intubación endotraqueal','Extubación programada','CUV (Catéter umbilical venoso)','CAU (Catéter umbilical arterial)','Catéter percutáneo (PICC)','Acceso venoso periférico neonatal','Punción lumbar neonatal','Toracocentesis / Drenaje pleural','Paracentesis neonatal','CPAP nasal','VAFO','ARM/VMA neonatal','RCP neonatal avanzada','Exanguinotransfusión','Surfactante exógeno','Fototerapia','Sondaje orogástrico / nasogástrico','Ecografía transfontanelar','Hipotermia terapéutica','Interpretación de gases y lab.'];
+const PPED=['Punción lumbar pediátrica','Acceso venoso periférico','Acceso intraóseo (IO)','Catéter venoso central','Intubación secuencia rápida (ISR)','Extubación programada pediátrica','ARM/VMA pediátrica','CPAP / BiPAP','RCP pediátrica avanzada','Cardioversión / desfibrilación','Toracocentesis pediátrica','Paracentesis pediátrica','Artrocentesis','Reducción de luxaciones','Sutura de heridas','Cateterismo vesical','Sondaje nasogástrico','Nebulización / aerosolterapia','Monitoreo hemodinámico invasivo','Colocación en CAFO'];
+const TIPOS_AT={clinico:'🏥 Clínico',bibliografico:'📚 Bibliográfico',morbimortalidad:'⚠️ Morbi-mortalidad',simulacion:'🎯 Simulación',clase:'📝 Clase/Taller'};
+const AMB_LBL={internacion:'🏥 Internación',shockroom:'🚨 Shock room',consultorio:'🏠 Consultorio',neonatal:'👶 Área neonatal'};
+
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const hoy=()=>new Date().toISOString().split('T')[0];
+const fd=d=>{if(!d)return'—';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0]};
+
+// ===== ESTADO =====
+let db=null,rid=null,residente=null,tab='guardias',saving=false;
+let S={guardias:[],procs:[],ateneos:[],casos:[]};
+let _gcal={y:new Date().getFullYear(),m:new Date().getMonth()};
+
+// ===== FIREBASE =====
+const FB_CFG={apiKey:"AIzaSyAMP2njK3LCW-pLUlolIIaGRr7vEBq6kKI",authDomain:"basededatosresineoped.firebaseapp.com",projectId:"basededatosresineoped",storageBucket:"basededatosresineoped.firebasestorage.app",messagingSenderId:"314018223006",appId:"1:314018223006:web:952ea4d9c0da93fb78bc8f"};
+
+function initFB(cfg){
+  try{
+    if(!firebase.apps.length)firebase.initializeApp(cfg);
+    db=firebase.firestore();return true;
+  }catch(e){console.error(e);return false;}
+}
+
+function toast(msg,col){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=col||'#276749';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== CARGA =====
+async function loadData(){
+  if(!db||!rid){showErr('Sin configuración. Pedile el link correcto a tu instructora.');return;}
+  try{
+    document.getElementById('hdrSts').textContent='Cargando…';
+    const rdoc=await db.collection('residentes').doc('residents').get();
+    if(rdoc.exists){
+      const rs=rdoc.data().items||[];
+      residente=rs.find(r=>r.id===rid);
+    }
+    if(!residente){showErr('Residente no encontrado. Verificá el link.');return;}
+    document.getElementById('hdrName').textContent=residente.nombre+' '+residente.apellido;
+    document.getElementById('hdrSub').textContent=residente.anio+' · Residencia Neo-Pediátrica';
+    document.getElementById('hdrSts').textContent='';
+    const cols=['guardias','procs','ateneos','casos'];
+    const docs=await Promise.all(cols.map(k=>db.collection('residentes').doc(k).get()));
+    docs.forEach(function(doc,i){
+      const k=cols[i];
+      if(doc.exists&&Array.isArray(doc.data().items))
+        S[k]=doc.data().items.filter(function(x){return x.rid===rid;});
+      else S[k]=[];
+    });
+    document.getElementById('bnav').style.display='flex';
+    render();
+  }catch(e){
+    console.error(e);showErr('Error al cargar: '+e.message);
+  }
+}
+
+async function saveCol(col){
+  if(!db||saving)return;
+  saving=true;
+  document.getElementById('hdrSts').textContent='⏳ Guardando…';
+  try{
+    const doc=await db.collection('residentes').doc(col).get();
+    const all=doc.exists?(doc.data().items||[]):[];
+    const otros=all.filter(function(x){return x.rid!==rid;});
+    await db.collection('residentes').doc(col).set({items:otros.concat(S[col]),ts:Date.now()});
+    toast('✅ Guardado');
+  }catch(e){
+    console.error(e);toast('❌ Error','#c53030');
+  }
+  document.getElementById('hdrSts').textContent='';
+  saving=false;
+}
+
+// ===== RENDER =====
+function setTab(t){
+  tab=t;
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('act');});
+  var el=document.getElementById('tab-'+t);
+  if(el)el.classList.add('act');
+  render();
+  window.scrollTo(0,0);
+}
+function render(){
+  if(tab==='guardias')renderGuardias();
+  else if(tab==='procs')renderProcs();
+  else if(tab==='ateneos')renderAteneos();
+  else if(tab==='casos')renderCasos();
+}
+
+// ===== GUARDIAS =====
+function renderGuardias(){
+  var y=_gcal.y,m=_gcal.m;
+  var fd1=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  var ml=new Date(y,m,1).toLocaleString('es-AR',{month:'long',year:'numeric'});
+  var ms=y+'-'+(m+1<10?'0':'')+(m+1);
+  var gd={};
+  S.guardias.forEach(function(g){
+    if(g.fecha&&g.fecha.substring(0,7)===ms){
+      var d=parseInt(g.fecha.split('-')[2]);
+      if(!gd[d])gd[d]=[];
+      gd[d].push(g);
+    }
+  });
+  var gm=0;
+  Object.values(gd).forEach(function(a){gm+=a.length;});
+  var DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var hdrH='<div class="cal-hdr">'+DN.map(function(d){return'<div>'+d[0]+'</div>';}).join('')+'</div>';
+  var calH='<div class="cal-grid">';
+  for(var i=0;i<fd1;i++)calH+='<div></div>';
+  for(var d=1;d<=dim;d++){
+    var date=new Date(y,m,d),isFds=date.getDay()===0||date.getDay()===6;
+    var ds=y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(d<10?'0':'')+d;
+    var gs=gd[d]||[],hasG=gs.length>0,isTod=ds===hoy();
+    var cls='cd';
+    if(hasG)cls+=isFds?' gf':' g';
+    if(isTod)cls+=' today';
+    calH+='<div class="'+cls+'" onclick="tapDay(\''+ds+'\','+isFds+')">';
+    calH+='<span>'+d+'</span>';
+    if(hasG)calH+='<div class="dot"></div>';
+    calH+='</div>';
+  }
+  calH+='</div>';
+  var totFds=S.guardias.filter(function(g){return g.tipo==='fds';}).length;
+  document.getElementById('content').innerHTML=
+    '<div class="card">'+
+      '<div class="sr">'+
+        '<div class="sb"><div class="n">'+gm+'</div><div class="l">Este mes</div></div>'+
+        '<div class="sb"><div class="n">'+totFds+'</div><div class="l">Fin de semana</div></div>'+
+        '<div class="sb"><div class="n">'+S.guardias.length+'</div><div class="l">Total</div></div>'+
+      '</div>'+
+      '<div class="cal-nav">'+
+        '<button onclick="_gcal.m--;if(_gcal.m<0){_gcal.m=11;_gcal.y--;}renderGuardias()">◀</button>'+
+        '<span class="mn">'+ml+'</span>'+
+        '<button onclick="_gcal.m++;if(_gcal.m>11){_gcal.m=0;_gcal.y++;}renderGuardias()">▶</button>'+
+      '</div>'+
+      '<p style="font-size:.7rem;color:var(--muted);text-align:center;margin-bottom:10px">Tocá un día para registrar una guardia</p>'+
+      hdrH+calH+
+    '</div>';
+}
+
+function tapDay(ds,isFds){
+  var existing=S.guardias.filter(function(g){return g.fecha===ds;});
+  var p=ds.split('-');
+  var existH='';
+  if(existing.length){
+    existH='<div style="margin-bottom:14px">';
+    existH+='<div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Registradas este día</div>';
+    existing.forEach(function(g){
+      existH+='<div style="display:flex;align-items:center;gap:8px;background:var(--bg);padding:9px 12px;border-radius:8px;margin-bottom:6px">';
+      existH+='<span style="flex:1;font-size:.85rem">🏥 <strong>'+(g.serv||'Guardia')+'</strong></span>';
+      existH+='<button onclick="removeItem(\'guardias\',\''+g.id+'\');cm();renderGuardias()" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.75rem">🗑</button>';
+      existH+='</div>';
+    });
+    existH+='</div><hr style="border:none;border-top:1px solid var(--brd);margin-bottom:14px">';
+  }
+  om(p[2]+'/'+p[1]+'/'+p[0]+' · '+(isFds?'Fin de semana':'Día de semana'),
+    existH+
+    '<div class="fg"><label>Servicio</label><select id="fserv"><option>Guardia pediátrica</option><option>Neonatología</option><option>UCIP</option><option>Rotación externa</option></select></div>'+
+    '<div class="fg"><label>Observaciones</label><textarea id="fobs" placeholder="Casos relevantes…"></textarea></div>',
+    '<button class="btn bp" onclick="addGuardia(\''+ds+'\',\''+(isFds?'fds':'semana')+'\')">✅ Registrar guardia</button>');
+}
+
+function addGuardia(ds,tipo){
+  var serv=document.getElementById('fserv');
+  var obs=document.getElementById('fobs');
+  S.guardias.push({id:uid(),rid:rid,fecha:ds,tipo:tipo,serv:serv?serv.value:'Guardia pediátrica',obs:obs?obs.value:''});
+  saveCol('guardias');cm();renderGuardias();
+}
+
+// ===== PROCEDIMIENTOS =====
+function renderProcs(){
+  var pnc={},ppc={};
+  S.procs.forEach(function(p){
+    if(PNEO.indexOf(p.tipo)>=0)pnc[p.tipo]=(pnc[p.tipo]||0)+1;
+    if(PPED.indexOf(p.tipo)>=0)ppc[p.tipo]=(ppc[p.tipo]||0)+1;
+  });
+  var hNeo='<div class="card"><div class="ctitle">🟢 Neonatología</div><div>';
+  PNEO.forEach(function(p){
+    var c=pnc[p]||0;
+    hNeo+='<div class="pi"><span>'+p+'</span><span class="pcnt'+(c===0?' z':'')+'" onclick="openProc(\''+p.replace(/'/g,"\\'")+'\')">'+(c||0)+'</span></div>';
+  });
+  hNeo+='</div></div>';
+  var hPed='<div class="card"><div class="ctitle">🔵 Pediatría</div><div>';
+  PPED.forEach(function(p){
+    var c=ppc[p]||0;
+    hPed+='<div class="pi"><span>'+p+'</span><span class="pcnt'+(c===0?' z':'')+'" onclick="openProc(\''+p.replace(/'/g,"\\'")+'\')">'+(c||0)+'</span></div>';
+  });
+  hPed+='</div></div>';
+  document.getElementById('content').innerHTML=hNeo+hPed;
+}
+
+function openProc(tipo){
+  om('Registrar: '+tipo,
+    '<div class="fg"><label>Fecha</label><input type="date" id="ff2" value="'+hoy()+'"></div>'+
+    '<div class="fg"><label>Nivel de autonomía</label><select id="fniv"><option value="observado">Observado</option><option value="supervisado">Supervisado</option><option value="autónomo">Autónomo</option></select></div>'+
+    '<div class="fg"><label>Supervisor/a</label><input id="fsup" placeholder="Nombre del supervisor"></div>'+
+    '<div class="fg"><label>Observaciones</label><textarea id="fobs"></textarea></div>',
+    '<button class="btn bp" onclick="addProc(\''+tipo.replace(/'/g,"\\'")+'\')">✅ Registrar</button>');
+}
+
+function addProc(tipo){
+  var ff2=document.getElementById('ff2'),fniv=document.getElementById('fniv'),fsup=document.getElementById('fsup'),fobs=document.getElementById('fobs');
+  S.procs.push({id:uid(),rid:rid,tipo:tipo,fecha:ff2?ff2.value:hoy(),niv:fniv?fniv.value:'',sup:fsup?fsup.value:'',obs:fobs?fobs.value:''});
+  saveCol('procs');cm();renderProcs();
+}
+
+// ===== ATENEOS =====
+function renderAteneos(){
+  var rec=S.ateneos.slice().reverse().slice(0,25);
+  var mesStr=hoy().substring(0,7);
+  var mesCnt=S.ateneos.filter(function(x){return x.fecha&&x.fecha.substring(0,7)===mesStr;}).length;
+  var expCnt=S.ateneos.filter(function(x){return x.rol==='expositor';}).length;
+  var listH='';
+  if(rec.length){
+    rec.forEach(function(x){
+      listH+='<div class="ri">';
+      listH+='<div style="flex:1"><div style="font-weight:700;font-size:.85rem">'+x.titulo+'</div>';
+      listH+='<div class="meta">'+(TIPOS_AT[x.tipo]||x.tipo)+' · '+fd(x.fecha)+(x.docente?' · '+x.docente:'')+'</div></div>';
+      var rolBg=x.rol==='expositor'?'#c6f6d5':'#bee3f8';
+      var rolTxt=x.rol==='expositor'?'#276749':'#2c5282';
+      listH+='<span class="badge" style="background:'+rolBg+';color:'+rolTxt+'">'+(x.rol||'asistente')+'</span>';
+      listH+='</div>';
+    });
+  }else{
+    listH='<div class="empty-msg">Sin ateneos registrados</div>';
+  }
+  document.getElementById('content').innerHTML=
+    '<div class="card">'+
+      '<div class="sr">'+
+        '<div class="sb"><div class="n">'+S.ateneos.length+'</div><div class="l">Total</div></div>'+
+        '<div class="sb"><div class="n">'+expCnt+'</div><div class="l">Como expositor</div></div>'+
+        '<div class="sb"><div class="n">'+mesCnt+'</div><div class="l">Este mes</div></div>'+
+      '</div>'+
+      '<button class="btn bp" style="margin-bottom:14px" onclick="openAteneo()">＋ Registrar ateneo</button>'+
+      listH+
+    '</div>';
+}
+
+function openAteneo(){
+  om('Registrar Ateneo',
+    '<div class="fg"><label>Tipo</label><select id="ftipo"><option value="clinico">🏥 Ateneo clínico</option><option value="bibliografico">📚 Revisión bibliográfica</option><option value="morbimortalidad">⚠️ Morbi-mortalidad</option><option value="simulacion">🎯 Simulación</option><option value="clase">📝 Clase / Taller</option></select></div>'+
+    '<div class="fg"><label>Fecha</label><input type="date" id="ff2" value="'+hoy()+'"></div>'+
+    '<div class="fg"><label>Título / Tema</label><input id="ftit" placeholder="Ej: Sepsis neonatal"></div>'+
+    '<div class="fr"><div class="fg"><label>Docente</label><input id="fdocente"></div><div class="fg"><label>Mi rol</label><select id="frol"><option value="asistente">Asistente</option><option value="expositor">Expositor/a</option><option value="coordinador">Coordinador/a</option></select></div></div>',
+    '<button class="btn bp" onclick="addAteneo()">✅ Registrar</button>');
+}
+
+function addAteneo(){
+  var ftit=document.getElementById('ftit');
+  var t=ftit?ftit.value.trim():'';
+  if(!t){alert('Ingresá el título.');return;}
+  var ftipo=document.getElementById('ftipo'),ff2=document.getElementById('ff2'),fdocente=document.getElementById('fdocente'),frol=document.getElementById('frol');
+  S.ateneos.push({id:uid(),rid:rid,tipo:ftipo?ftipo.value:'clinico',titulo:t,fecha:ff2?ff2.value:hoy(),docente:fdocente?fdocente.value:'',rol:frol?frol.value:'asistente'});
+  saveCol('ateneos');cm();renderAteneos();
+}
+
+// ===== CASOS CLÍNICOS =====
+function renderCasos(){
+  var hoyStr=hoy();
+  var hoyItems=S.casos.filter(function(c){return c.fecha===hoyStr;});
+  var ms=hoyStr.substring(0,7);
+  var mesTot=S.casos.filter(function(c){return c.fecha&&c.fecha.substring(0,7)===ms;}).length;
+  var prev=S.casos.filter(function(c){return c.fecha!==hoyStr;}).slice().reverse().slice(0,20);
+
+  var hoyH='';
+  if(hoyItems.length){
+    hoyH='<div class="hoy-sec"><div class="hoy-title">📅 Hoy — '+fd(hoyStr)+' · '+hoyItems.length+' caso'+(hoyItems.length!==1?'s':'')+'</div>';
+    hoyItems.forEach(function(c){
+      hoyH+='<div style="padding:8px 0;border-bottom:1px solid rgba(39,103,73,.15);display:flex;align-items:flex-start;gap:8px">';
+      hoyH+='<div style="flex:1"><div style="font-size:.88rem;font-weight:800">'+(c.diag||'Sin diagnóstico')+'</div>';
+      hoyH+='<div style="font-size:.72rem;margin-top:3px;color:var(--neo)">'+(AMB_LBL[c.amb]||c.amb||'—');
+      if(c.compl){
+        var cbg=c.compl==='alta'?'#fed7d7':c.compl==='media'?'#fefcbf':'#c6f6d5';
+        var ctxt=c.compl==='alta'?'#c53030':c.compl==='media'?'#744210':'#276749';
+        hoyH+=' <span class="badge" style="background:'+cbg+';color:'+ctxt+'">'+c.compl+'</span>';
+      }
+      if(c.rot)hoyH+=' · '+c.rot;
+      hoyH+='</div>';
+      if(c.comp)hoyH+='<div style="font-size:.74rem;color:var(--muted);margin-top:3px;font-style:italic">'+c.comp.substring(0,70)+'</div>';
+      hoyH+='</div>';
+      hoyH+='<button onclick="removeItem(\'casos\',\''+c.id+'\');renderCasos()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.9rem;padding:2px;flex-shrink:0">✕</button>';
+      hoyH+='</div>';
+    });
+    hoyH+='</div>';
+  }
+
+  var prevH='';
+  if(prev.length){
+    prevH='<div style="margin-top:12px"><div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Casos anteriores</div>';
+    prev.forEach(function(c){
+      prevH+='<div class="ri"><div style="flex:1"><div style="font-weight:700;font-size:.85rem">'+(c.diag||'Sin diagnóstico')+'</div>';
+      prevH+='<div class="meta">'+(AMB_LBL[c.amb]||c.amb||'—')+' · '+fd(c.fecha)+(c.rot?' · '+c.rot:'')+'</div></div>';
+      if(c.compl){
+        var cbg=c.compl==='alta'?'#fed7d7':c.compl==='media'?'#fefcbf':'#c6f6d5';
+        var ctxt=c.compl==='alta'?'#c53030':c.compl==='media'?'#744210':'#276749';
+        prevH+='<span class="badge" style="background:'+cbg+';color:'+ctxt+';flex-shrink:0">'+c.compl+'</span>';
+      }
+      prevH+='</div>';
+    });
+    prevH+='</div>';
+  }else{
+    prevH='<div class="empty-msg" style="margin-top:8px">Registrá tu primer caso del día</div>';
+  }
+
+  document.getElementById('content').innerHTML=
+    '<div class="card">'+
+      '<div class="sr">'+
+        '<div class="sb"><div class="n">'+hoyItems.length+'</div><div class="l">Hoy</div></div>'+
+        '<div class="sb"><div class="n">'+mesTot+'</div><div class="l">Este mes</div></div>'+
+        '<div class="sb"><div class="n">'+S.casos.length+'</div><div class="l">Total</div></div>'+
+      '</div>'+
+      '<button class="btn bp" style="margin-bottom:14px" onclick="openCaso()">＋ Registrar caso clínico</button>'+
+      hoyH+prevH+
+    '</div>';
+}
+
+function openCaso(){
+  om('Registrar caso clínico',
+    '<div class="fg"><label>Fecha</label><input type="date" id="ff2" value="'+hoy()+'"></div>'+
+    '<div class="fg"><label>Diagnóstico principal</label><input id="fdiag" placeholder="Ej: Bronquiolitis moderada, Sepsis neonatal…"></div>'+
+    '<div class="fr">'+
+      '<div class="fg"><label>Ámbito</label><select id="famb"><option value="internacion">🏥 Internación</option><option value="shockroom">🚨 Shock room</option><option value="consultorio">🏠 Consultorio</option><option value="neonatal">👶 Área neonatal</option></select></div>'+
+      '<div class="fg"><label>Complejidad</label><select id="fcompl"><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></div>'+
+    '</div>'+
+    '<div class="fg"><label>Rotación</label><input id="frot" placeholder="Rotación actual"></div>'+
+    '<div class="fg"><label>Competencia trabajada</label><textarea id="fcomp" placeholder="Ej: Diagnóstico diferencial del distrés respiratorio…"></textarea></div>'+
+    '<div class="fg"><label>Reflexión / aprendizaje</label><textarea id="frefl" placeholder="¿Qué aprendiste de este caso?"></textarea></div>',
+    '<button class="btn bp" onclick="addCaso()">✅ Guardar caso</button>');
+}
+
+function addCaso(){
+  var fdiag=document.getElementById('fdiag');
+  var d=fdiag?fdiag.value.trim():'';
+  if(!d){alert('Ingresá el diagnóstico.');return;}
+  var ff2=document.getElementById('ff2'),famb=document.getElementById('famb'),fcompl=document.getElementById('fcompl'),frot=document.getElementById('frot'),fcomp=document.getElementById('fcomp'),frefl=document.getElementById('frefl');
+  S.casos.push({id:uid(),rid:rid,fecha:ff2?ff2.value:hoy(),diag:d,amb:famb?famb.value:'internacion',compl:fcompl?fcompl.value:'baja',rot:frot?frot.value:'',comp:fcomp?fcomp.value:'',refl:frefl?frefl.value:''});
+  saveCol('casos');cm();renderCasos();
+}
+
+// ===== UTILS =====
+function removeItem(col,id){
+  S[col]=S[col].filter(function(x){return x.id!==id;});
+  saveCol(col);toast('🗑 Eliminado','#718096');
+}
+
+function om(title,body,footer){
+  document.getElementById('mc').innerHTML='<div class="mh"><div class="mt">'+title+'</div><button class="mx" onclick="cm()">✕</button></div>'+body+'<div class="mf">'+footer+'</div>';
+  document.getElementById('mo').classList.add('open');
+}
+function cm(){document.getElementById('mo').classList.remove('open');}
+document.getElementById('mo').addEventListener('click',function(e){if(e.target===document.getElementById('mo'))cm();});
+
+function showErr(msg){
+  document.getElementById('hdrName').textContent='Portal Residente';
+  document.getElementById('hdrSts').textContent='';
+  document.getElementById('content').innerHTML='<div class="card" style="text-align:center;padding:30px"><div style="font-size:2.5rem;margin-bottom:12px">❌</div><p style="color:var(--muted);font-size:.88rem">'+msg+'</p></div>';
+}
+
+// ===== INICIO =====
+var params=new URLSearchParams(window.location.search);
+rid=params.get('rid');
+if(!rid){
+  showErr('Link inválido. Pedile el link correcto a tu instructora.');
+}else{
+  // Intentar config desde URL hash (link generado por instructora)
+  var hashData=location.hash.slice(1);
+  if(hashData){
+    try{
+      var cfg=JSON.parse(atob(hashData));
+      localStorage.setItem('fb_config',JSON.stringify(cfg));
+      initFB(cfg);
+    }catch(e){console.error(e);}
+  }
+  // Config hardcodeada como fallback
+  if(!db)initFB(FB_CFG);
+  if(db)loadData();
+  else showErr('Sin conexión a Firebase. Pedile el link completo a tu instructora.');
+}
+</script>
+</body>
+</html>
