@@ -120,7 +120,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}
 
 <script>
 // ===== ESTADO =====
-let S={residents:[],evals:[],procs:[],guardias:[],casos:[],rots:[],stats:[],ciencia:[],licencias:[],comunidad:[],rid:null,tab:'perfil'};
+let S={residents:[],evals:[],procs:[],guardias:[],casos:[],rots:[],stats:[],ciencia:[],licencias:[],comunidad:[],ateneos:[],pacientes:[],rid:null,tab:'perfil'};
 let rotFilter='all';
 let repMode='semestral',repYear=new Date().getFullYear(),repSem=new Date().getMonth()<6?1:2;
 
@@ -1011,14 +1011,20 @@ function srub(pre,dom,val){
 
 function del(col,id){if(!confirm('¿Eliminar?'))return;S[col]=S[col].filter(x=>x.id!==id);save();render();}
 
-// ===== INICIO =====
-const savedFbCfg=localStorage.getItem('fb_config');
+// ===== INICIO — Firebase hardcodeado =====
+const FB_CFG={apiKey:"AIzaSyAMP2njK3LCW-pLUlolIIaGRr7vEBq6kKI",authDomain:"basededatosresineoped.firebaseapp.com",projectId:"basededatosresineoped",storageBucket:"basededatosresineoped.firebasestorage.app",messagingSenderId:"314018223006",appId:"1:314018223006:web:952ea4d9c0da93fb78bc8f"};
+
 if(IS_AS){
   load();
-}else if(savedFbCfg){
-  try{initFirebase(JSON.parse(savedFbCfg));load();}catch(e){console.error(e);setTimeout(oSettings,500);}
 }else{
-  setTimeout(oSettings,800);
+  localStorage.setItem('fb_config',JSON.stringify(FB_CFG));
+  if(initFirebase(FB_CFG)){
+    const b=document.getElementById('gsBtn');
+    if(b){b.textContent='🔥 Firebase ✅';b.style.color='var(--neo)';}
+    load();
+  }else{
+    render();
+  }
 }
 </script>
 </body>
