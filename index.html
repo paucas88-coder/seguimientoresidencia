@@ -1010,6 +1010,25 @@ function srub(pre,dom,val){
   const b=document.getElementById(`rb_${pre}_${dom}_${val}`);if(b)b.classList.add(`sel-${val}`);
 }
 
+function verCaso(id){
+  const x=S.casos.find(c=>c.id===id);if(!x)return;
+  const amb={internacion:'🏥 Internación',consultorio:'🏠 Consultorio',shockroom:'🚨 Shock room',neonatal:'👶 Área neonatal'};
+  const cBg={alta:'#fed7d7',media:'#fefcbf',baja:'#c6f6d5'};
+  const cTxt={alta:'#c53030',media:'#744210',baja:'#276749'};
+  const sec=`<div style="background:var(--bg);border-radius:6px;padding:10px;margin-bottom:10px">`;
+  om('📋 Caso Clínico — '+fd(x.fecha),`
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="badge" style="background:var(--pri-bg);color:var(--pri)">${amb[x.amb]||x.amb||'—'}</span>
+      ${x.compl?`<span class="badge" style="background:${cBg[x.compl]};color:${cTxt[x.compl]}">${x.compl} complejidad</span>`:''}
+      ${x.rot?`<span class="badge" style="background:#e2e8f0;color:#4a5568">🔄 ${x.rot}</span>`:''}
+    </div>
+    <div class="sd">Diagnóstico</div>
+    ${sec}<strong>${x.diag||'—'}</strong></div>
+    ${x.comp?`<div class="sd">Competencia trabajada</div>${sec}${x.comp}</div>`:''}
+    ${x.refl?`<div class="sd">Reflexión / Aprendizaje</div>${sec}${x.refl}</div>`:''}`,
+    `<button class="btn bg2" onclick="cm()">Cerrar</button><button class="btn br bsm" onclick="del('casos','${id}');cm()">🗑 Eliminar</button>`);
+}
+
 function del(col,id){if(!confirm('¿Eliminar?'))return;S[col]=S[col].filter(x=>x.id!==id);save();render();}
 
 // ===== INICIO — Firebase hardcodeado =====
